@@ -1,6 +1,8 @@
 package ru.bobahe.gbcloud.common;
 
-public class Command {
+import java.io.Serializable;
+
+public class Command implements Serializable {
     public enum Action {
         UPLOAD,
         DELETE,
