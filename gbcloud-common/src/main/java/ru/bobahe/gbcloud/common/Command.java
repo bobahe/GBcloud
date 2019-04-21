@@ -3,19 +3,31 @@ package ru.bobahe.gbcloud.common;
 import java.io.Serializable;
 
 public class Command implements Serializable {
+    private static final long serialVersionUID = -6269805515535392423L;
+
     public enum Action {
+        REGISTER,
         UPLOAD,
         DELETE,
         DOWNLOAD,
-        LIST
+        LIST,
+        AUTH,
+        ERROR
     }
 
-    private Action command;
+    private Action action;
+
     private String path;
     private String filename;
 
-    public Command(Action command) {
-        this.command = command;
+    private String username;
+    private String password;
+
+    private String errorMessage;
+
+    public Command setAction(Action action) {
+        this.action = action;
+        return this;
     }
 
     public Command addPath(String path) {
@@ -28,8 +40,23 @@ public class Command implements Serializable {
         return this;
     }
 
-    public Action getCommand() {
-        return command;
+    public Command setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public Command setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public Command setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+        return this;
+    }
+
+    public Action getAction() {
+        return action;
     }
 
     public String getPath() {
@@ -38,5 +65,17 @@ public class Command implements Serializable {
 
     public String getFilename() {
         return filename;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 }
