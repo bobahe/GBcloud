@@ -26,9 +26,10 @@ public class FileChunk implements Serializable {
             length = fileWorker.readFileChunk(Paths.get(filePath), data);
             offset = fileWorker.getOffset();
             return true;
-        } else {
-            fileWorker.flush();
         }
+
+        fileWorker.flush();
+        length = 0;
 
         return false;
     }

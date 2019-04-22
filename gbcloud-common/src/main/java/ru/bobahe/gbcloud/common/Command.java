@@ -7,6 +7,7 @@ public class Command implements Serializable {
 
     public enum Action {
         REGISTER,
+        SUCCESS,
         UPLOAD,
         DELETE,
         DOWNLOAD,
@@ -23,7 +24,7 @@ public class Command implements Serializable {
     private String username;
     private String password;
 
-    private String errorMessage;
+    private String description;
 
     public Command setAction(Action action) {
         this.action = action;
@@ -50,8 +51,8 @@ public class Command implements Serializable {
         return this;
     }
 
-    public Command setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public Command setDescription(String description) {
+        this.description = description;
         return this;
     }
 
@@ -75,7 +76,7 @@ public class Command implements Serializable {
         return password;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getDescription() {
+        return description;
     }
 }
