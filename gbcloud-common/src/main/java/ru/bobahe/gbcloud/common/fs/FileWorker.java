@@ -28,13 +28,16 @@ public class FileWorker {
     }
 
     public void writeFileChunk(Path path, byte[] data, long offset, int length) {
-        Path directory = path.subpath(0, path.getNameCount() - 1);
+        if (path.getNameCount() > 1) {
+            Path directory = path.subpath(0, path.getNameCount() - 1);
 
-        try {
-            Files.createDirectories(directory);
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                Files.createDirectories(directory);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
 
         try (RandomAccessFile raf = new RandomAccessFile(path.toString(), "rw")) {
             raf.seek(offset - data.length);

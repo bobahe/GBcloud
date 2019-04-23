@@ -72,7 +72,7 @@ public class CommandRunner implements Invokable {
             responseCommand = Command.builder()
                     .action(Command.Action.LIST)
                     .path(path)
-                    .children(list)
+                    .childFiles(list)
                     .build();
             ctx.writeAndFlush(responseCommand);
         } catch (IOException e) {
@@ -94,9 +94,11 @@ public class CommandRunner implements Invokable {
                         File.separator +
                         command.getFilename()
         );
+        fileChunk.setDestinationFilePath(command.getDestinationPath());
         while (fileChunk.getNextChunk()) {
             ctx.writeAndFlush(fileChunk);
         }
+
         responseCommand = Command.builder()
                 .action(Command.Action.SUCCESS)
                 .description("Файл " + command.getFilename() + " успешно отправлен")

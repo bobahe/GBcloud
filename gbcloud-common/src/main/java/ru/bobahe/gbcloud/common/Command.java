@@ -26,11 +26,12 @@ public class Command implements Serializable {
 
     private String path;
     private String filename;
+    private String destinationPath;
 
     private String username;
     private String password;
 
     private String description;
 
-    protected Map<String, Boolean> children;
+    protected Map<String, Boolean> childFiles;
 }
