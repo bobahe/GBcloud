@@ -53,9 +53,33 @@ public class CommandRunner implements Invokable {
             case LIST:
                 sendList(command.getPath(), ctx);
                 break;
+            case DELETE:
+                delete(command.getPath(), ctx);
+                break;
             default:
                 sendMessage(Command.Action.ERROR, "Я еще не умею обрабатывать команды " + command.getAction(), ctx);
                 break;
+        }
+    }
+
+    private void delete(String path, ChannelHandlerContext ctx) {
+        try {
+            fileWorker.delete(Paths.get(
+                    ApplicationProperties.getInstance().getProperty("root.directory") +
+                            File.separator +
+                            findUserFolderByChannel(ctx) +
+                            File.separator +
+                            path
+            ));
+
+            if (!fileWorker.isDeleteFalse()) {
+                sendMessage(Command.Action.SUCCESS, "Файл " + path + " успешно удален.", ctx);
+                return;
+            }
+
+            sendMessage(Command.Action.ERROR, "Возникла ошибка при удалении файла/ов.", ctx);
+        } catch (IOException e) {
+            sendMessage(Command.Action.ERROR, e.getClass().getSimpleName() + ": " + e.getMessage(), ctx);
         }
     }
 
@@ -76,11 +100,7 @@ public class CommandRunner implements Invokable {
                     .build();
             ctx.writeAndFlush(responseCommand);
         } catch (IOException e) {
-            responseCommand = Command.builder()
-                    .action(Command.Action.ERROR)
-                    .description(e.getMessage())
-                    .build();
-            ctx.writeAndFlush(responseCommand);
+            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
         }
     }
 
@@ -101,17 +121,9 @@ public class CommandRunner implements Invokable {
                 ctx.writeAndFlush(fileChunk);
             }
 
-            responseCommand = Command.builder()
-                    .action(Command.Action.SUCCESS)
-                    .description("Файл " + command.getFilename() + " успешно отправлен")
-                    .build();
-            ctx.writeAndFlush(responseCommand);
+            sendMessage(Command.Action.SUCCESS, "Файл " + command.getFilename() + " успешно отправлен", ctx);
         } catch (IOException e) {
-            responseCommand = Command.builder()
-                    .action(Command.Action.ERROR)
-                    .description(e.getMessage())
-                    .build();
-            ctx.writeAndFlush(responseCommand);
+            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
         }
     }
 
@@ -127,21 +139,13 @@ public class CommandRunner implements Invokable {
         );
 
         if (folder == null) {
-            responseCommand = Command.builder()
-                    .action(Command.Action.ERROR)
-                    .description("Неверные логин и/или пароль.")
-                    .build();
-            ctx.writeAndFlush(responseCommand);
+            sendMessage(Command.Action.ERROR, "Неверные логин и/или пароль.", ctx);
             return;
         }
 
         if (!new FileWorker().checkFolders(Paths.get(
                 ApplicationProperties.getInstance().getProperty("root.directory") + File.separator + folder))) {
-            responseCommand = Command.builder()
-                    .action(Command.Action.ERROR)
-                    .description("На сервере отсутствует Ваша папка. Обратитесь к системному администратору.")
-                    .build();
-            ctx.writeAndFlush(responseCommand);
+            sendMessage(Command.Action.ERROR, "На сервере отсутствует Ваша папка. Обратитесь к системному администратору.", ctx);
             ctx.close();
             return;
         }

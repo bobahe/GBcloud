@@ -7,11 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FileWorker {
     private long offset;
+    private boolean isDeleteFalse;
 
     public int readFileChunk(Path path, byte[] data) throws IOException {
         int length;
@@ -69,6 +71,14 @@ public class FileWorker {
         return result;
     }
 
+    public void delete(Path path) throws IOException {
+        Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(file -> {
+            if (!file.delete()) {
+                isDeleteFalse = true;
+            }
+        });
+    }
+
     public boolean checkFolders(Path... paths) {
         return Arrays.stream(paths).allMatch(p -> Files.isDirectory(p));
     }
@@ -79,5 +89,14 @@ public class FileWorker {
 
     public long getOffset() {
         return offset;
+    }
+
+    public boolean isDeleteFalse() {
+        if (isDeleteFalse) {
+            isDeleteFalse = false;
+            return true;
+        }
+
+        return false;
     }
 }
