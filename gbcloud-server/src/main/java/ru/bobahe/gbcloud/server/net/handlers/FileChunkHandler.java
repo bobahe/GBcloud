@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 public class FileChunkHandler extends ChannelInboundHandlerAdapter {
     private ConcurrentMap<String, Channel> clients = AuthenticatedClients.getInstance().clients;
     private static final FileWorker fileWorker = new FileWorker();
-    private static final Command command = new Command();
+    private Command responseCommand;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -31,8 +31,11 @@ public class FileChunkHandler extends ChannelInboundHandlerAdapter {
                         fileChunk.getLength()
                 );
             } else {
-                command.setAction(Command.Action.SUCCESS).setDescription("Success");
-                ctx.writeAndFlush(command);
+                responseCommand = Command.builder()
+                        .action(Command.Action.SUCCESS)
+                        .description("Success")
+                        .build();
+                ctx.writeAndFlush(responseCommand);
             }
         } else {
             System.out.println("От тебя пришла какая-то туфта.");

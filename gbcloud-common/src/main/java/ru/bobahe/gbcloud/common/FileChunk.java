@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 public class FileChunk implements Serializable {
     private static final long serialVersionUID = 483955420908884631L;
 
-    private Command command;
     private byte[] data = new byte[4096];
     private String filePath;
     private String destinationFilePath;
@@ -17,8 +16,8 @@ public class FileChunk implements Serializable {
 
     transient private FileWorker fileWorker = new FileWorker();
 
-    public FileChunk(Command command) {
-        this.command = command;
+    public FileChunk() {
+
     }
 
     public boolean getNextChunk() {
@@ -56,10 +55,6 @@ public class FileChunk implements Serializable {
 
     public int getLength() {
         return length;
-    }
-
-    public Command getCommand() {
-        return command;
     }
 
     public byte[] getData() {
