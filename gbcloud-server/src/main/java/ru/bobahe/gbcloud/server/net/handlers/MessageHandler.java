@@ -11,13 +11,12 @@ import ru.bobahe.gbcloud.server.CommandRunner;
 @Log
 public class MessageHandler extends ChannelInboundHandlerAdapter {
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         log.info("New client connected [" + ctx.channel().remoteAddress() + "]");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        log.info(msg.toString());
         if (msg instanceof Command) {
             CommandRunner.getInstance().invoke((Command) msg, ctx);
         } else {

@@ -14,6 +14,7 @@ public class FileChunk implements Serializable {
     private int length;
     private long offset;
 
+    // prevent fileWorker serialization
     transient private FileWorker fileWorker = new FileWorker();
 
     public FileChunk() {
