@@ -14,7 +14,7 @@ public class Command implements Serializable {
     public enum Action {
         REGISTER,
         SUCCESS,
-        UPLOAD,
+        // UPLOAD, think it's not necessary
         DELETE,
         DOWNLOAD,
         LIST,
