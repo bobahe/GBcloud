@@ -3,7 +3,6 @@ package ru.bobahe.gbcloud.common.fs;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,15 +13,13 @@ import java.util.Map;
 public class FileWorker {
     private long offset;
 
-    public int readFileChunk(Path path, byte[] data) {
-        int length = -1;
-        try (RandomAccessFile raf = new RandomAccessFile(path.toString(), "r")) {
-            raf.seek(offset);
-            length = raf.read(data);
-            offset += data.length;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public int readFileChunk(Path path, byte[] data) throws IOException {
+        int length;
+
+        RandomAccessFile raf = new RandomAccessFile(path.toString(), "r");
+        raf.seek(offset);
+        length = raf.read(data);
+        offset += data.length;
 
         return length;
     }

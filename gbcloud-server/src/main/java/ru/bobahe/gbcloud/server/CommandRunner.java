@@ -95,15 +95,24 @@ public class CommandRunner implements Invokable {
                         command.getFilename()
         );
         fileChunk.setDestinationFilePath(command.getDestinationPath());
-        while (fileChunk.getNextChunk()) {
-            ctx.writeAndFlush(fileChunk);
-        }
 
-        responseCommand = Command.builder()
-                .action(Command.Action.SUCCESS)
-                .description("Файл " + command.getFilename() + " успешно отправлен")
-                .build();
-        ctx.writeAndFlush(responseCommand);
+        try {
+            while (fileChunk.getNextChunk()) {
+                ctx.writeAndFlush(fileChunk);
+            }
+
+            responseCommand = Command.builder()
+                    .action(Command.Action.SUCCESS)
+                    .description("Файл " + command.getFilename() + " успешно отправлен")
+                    .build();
+            ctx.writeAndFlush(responseCommand);
+        } catch (IOException e) {
+            responseCommand = Command.builder()
+                    .action(Command.Action.ERROR)
+                    .description(e.getMessage())
+                    .build();
+            ctx.writeAndFlush(responseCommand);
+        }
     }
 
     private void sendMessage(Command.Action action, String s, ChannelHandlerContext ctx) {

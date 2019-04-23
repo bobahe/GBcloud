@@ -2,6 +2,7 @@ package ru.bobahe.gbcloud.common;
 
 import ru.bobahe.gbcloud.common.fs.FileWorker;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Paths;
 
@@ -21,7 +22,7 @@ public class FileChunk implements Serializable {
 
     }
 
-    public boolean getNextChunk() {
+    public boolean getNextChunk() throws IOException {
         if (length != -1) {
             length = fileWorker.readFileChunk(Paths.get(filePath), data);
             offset = fileWorker.getOffset();
