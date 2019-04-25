@@ -21,6 +21,7 @@ public class FileWorker {
         RandomAccessFile raf = new RandomAccessFile(path.toString(), "r");
         raf.seek(offset);
         length = raf.read(data);
+        raf.close();
         offset += data.length;
 
         return length;
@@ -98,5 +99,9 @@ public class FileWorker {
         }
 
         return false;
+    }
+
+    public void createUserFolder(Path path) throws IOException {
+        Files.createDirectory(path);
     }
 }

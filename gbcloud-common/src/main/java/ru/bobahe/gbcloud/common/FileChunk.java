@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 public class FileChunk implements Serializable {
     private static final long serialVersionUID = 483955420908884631L;
 
-    private byte[] data = new byte[4096];
+    private byte[] data = new byte[8192];
     private String filePath;
     private String destinationFilePath;
     private int length;

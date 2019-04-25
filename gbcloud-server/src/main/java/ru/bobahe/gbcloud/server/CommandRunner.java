@@ -14,7 +14,9 @@ import ru.bobahe.gbcloud.server.properties.ApplicationProperties;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.util.Map;
+import java.util.UUID;
 
 @Log
 public class CommandRunner implements Invokable {
@@ -35,13 +37,15 @@ public class CommandRunner implements Invokable {
 
     @Override
     public void invoke(Command command, ChannelHandlerContext ctx) {
-        log.info("Client has sent command " + command.getAction());
-
-        if (!isAuthenticatedClient(ctx.channel()) && command.getAction() != Command.Action.AUTH) {
+        if (!isAuthenticatedClient(ctx.channel()) &&
+                command.getAction() != Command.Action.AUTH &&
+                command.getAction() != Command.Action.REGISTER) {
             responseCommand = Command.builder().action(Command.Action.ERROR).description("Вы не авторизовались.").build();
             ctx.write(responseCommand);
             return;
         }
+
+        log.info("Client has sent command " + command.getAction());
 
         switch (command.getAction()) {
             case AUTH:
@@ -56,9 +60,34 @@ public class CommandRunner implements Invokable {
             case DELETE:
                 delete(command.getPath(), ctx);
                 break;
+            case REGISTER:
+                registerClient(command.getUsername(), command.getPassword(), ctx);
+                break;
+            case UPLOAD:
+                sendMessage(Command.Action.UPLOAD, "Ready", ctx);
+                break;
             default:
                 sendMessage(Command.Action.ERROR, "Я еще не умею обрабатывать команды " + command.getAction(), ctx);
                 break;
+        }
+    }
+
+    private void registerClient(String username, String password, ChannelHandlerContext ctx) {
+        try {
+            String hashedPassword = new String(MessageDigest.getInstance("MD5").digest());
+            String uuidFolderName = UUID.randomUUID().toString();
+            authService.insertNewUser(username, hashedPassword, uuidFolderName);
+
+            sendMessage(Command.Action.SUCCESS, "Вы успешно зарегистрированы.", ctx);
+
+            fileWorker.createUserFolder(
+                    Paths.get(
+                    ApplicationProperties.getInstance().getProperty("root.directory") +
+                            File.separator +
+                            uuidFolderName)
+            );
+        } catch (Exception e) {
+            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
         }
     }
 
@@ -133,10 +162,16 @@ public class CommandRunner implements Invokable {
     }
 
     private void authenticate(String username, String password, ChannelHandlerContext ctx) {
-        String folder = authService.getFolderByUsernameAndPassword(
-                username,
-                password
-        );
+        String folder = null;
+
+        try {
+            folder = authService.getFolderByUsernameAndPassword(
+                    username,
+                    new String(MessageDigest.getInstance("MD5").digest())
+            );
+        } catch (Exception e) {
+            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
+        }
 
         if (folder == null) {
             sendMessage(Command.Action.ERROR, "Неверные логин и/или пароль.", ctx);
