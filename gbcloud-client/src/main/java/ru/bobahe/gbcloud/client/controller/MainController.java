@@ -80,6 +80,7 @@ public class MainController implements Initializable {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private void prepareTableViews() {
         clientFilesTable.getColumns().addAll(
                 getNewColumn("Имя", "name"),
