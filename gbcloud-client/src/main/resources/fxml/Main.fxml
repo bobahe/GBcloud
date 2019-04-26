@@ -14,13 +14,9 @@
     <VBox fx:id="mainVBox" style="-fx-padding: 4;">
         <!--        style="-fx-background-color: #eee; -fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 20;">-->
         <MenuBar>
-            <menus>
-                <Menu text="Network">
-                    <items>
-                        <MenuItem text="Connect" onAction="#menuConnectAction"/>
-                    </items>
-                </Menu>
-            </menus>
+            <Menu text="Network">
+                <MenuItem text="Connect" onAction="#menuConnectAction"/>
+            </Menu>
         </MenuBar>
 
         <AnchorPane fx:id="anchorPane" prefHeight="${anchorPane.parent.height}">
@@ -42,9 +38,17 @@
                 <Label fx:id="lblClientPath" GridPane.columnIndex="0" style="-fx-padding: 4"/>
                 <Label fx:id="lblServerPath" GridPane.columnIndex="1" style="-fx-padding: 4"/>
                 <TableView fx:id="clientFilesTable" GridPane.columnIndex="0" GridPane.rowIndex="1"
-                           onMouseClicked="#clientFilesTableClick" onKeyReleased="#clientFilesTableKeyPressed"/>
+                           onMouseClicked="#clientFilesTableClick" onKeyReleased="#clientFilesTableKeyPressed">
+                    <placeholder>
+                        <Label text="Здесь пока ничего нет."/>
+                    </placeholder>
+                </TableView>
                 <TableView fx:id="serverFilesTable" GridPane.columnIndex="1" GridPane.rowIndex="1"
-                           onMouseClicked="#serverFilesTableClick" onKeyReleased="#serverFilesTableKeyPressed"/>
+                           onMouseClicked="#serverFilesTableClick" onKeyReleased="#serverFilesTableKeyPressed">
+                    <placeholder>
+                        <Label text="Здесь пока ничего нет."/>
+                    </placeholder>
+                </TableView>
             </GridPane>
         </AnchorPane>
     </VBox>

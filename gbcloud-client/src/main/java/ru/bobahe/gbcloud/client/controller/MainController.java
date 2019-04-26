@@ -95,6 +95,13 @@ public class MainController implements Initializable {
             case F5:
                 model.copyToServer(clientFilesTable, clientPath, serverPath);
                 break;
+            case F8:
+                try {
+                    model.delete(true, clientFilesTable);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
         }
     }
 
@@ -124,6 +131,13 @@ public class MainController implements Initializable {
                 break;
             case F5:
                 model.copyFromServer(serverFilesTable, clientPath, serverPath);
+                break;
+            case F8:
+                try {
+                    model.delete(false, serverFilesTable);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
         }
     }

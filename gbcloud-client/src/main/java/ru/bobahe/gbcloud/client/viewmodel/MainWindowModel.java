@@ -15,6 +15,7 @@ import ru.bobahe.gbcloud.common.fs.FileWorker;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -31,6 +32,8 @@ public class MainWindowModel {
 
     private Client client;
     private Command responseCommand;
+    private FileWorker fileWorker = new FileWorker();
+
 
     @Getter
     private ObservableList<Filec> clientFilesList = FXCollections.observableArrayList();
@@ -40,11 +43,11 @@ public class MainWindowModel {
 
     @Setter
     @Getter
-    private StringProperty serverPath= new SimpleStringProperty();
+    private StringProperty serverPath = new SimpleStringProperty();
 
     @Setter
     @Getter
-    private StringProperty clientPath= new SimpleStringProperty();
+    private StringProperty clientPath = new SimpleStringProperty();
 
     public MainWindowModel setClient(Client client) {
         ourInstance.client = client;
@@ -105,7 +108,7 @@ public class MainWindowModel {
     public void copyToServer(TableView<Filec> tw, StringProperty from, StringProperty to) {
         Filec selectedItem = tw.getSelectionModel().getSelectedItem();
 
-        if (selectedItem == null) {
+        if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
         }
 
@@ -143,7 +146,7 @@ public class MainWindowModel {
     public void copyFromServer(TableView<Filec> serverFilesTable, StringProperty clientPath, StringProperty serverPath) {
         Filec selectedItem = serverFilesTable.getSelectionModel().getSelectedItem();
 
-        if (selectedItem == null) {
+        if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
         }
 
@@ -157,5 +160,34 @@ public class MainWindowModel {
                 .destinationPath(clientPath.get())
                 .build();
         client.getChannel().writeAndFlush(responseCommand);
+    }
+
+    public void delete(boolean isClient, TableView<Filec> tw) throws Exception {
+        Filec selecteItem = tw.getSelectionModel().getSelectedItem();
+
+        if (selecteItem == null || selecteItem.getName().equals("..")) {
+            return;
+        }
+
+        if (isClient) {
+            Path pathToDelete = Paths.get(
+                    ApplicationProperties.getInstance().getProperty("root.directory") +
+                            clientPath.get() +
+                            selecteItem.getName()
+            );
+            fileWorker.delete(pathToDelete);
+            clientFilesList.clear();
+            getClientFileList();
+        } else {
+            if (client.getChannel() == null) {
+                return;
+            }
+
+            responseCommand = Command.builder()
+                    .action(Command.Action.DELETE)
+                    .path(serverPath.get() + selecteItem.getName())
+                    .build();
+            client.getChannel().writeAndFlush(responseCommand);
+        }
     }
 }

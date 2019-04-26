@@ -112,13 +112,14 @@ public class CommandRunner implements Invokable {
             ));
 
             if (!fileWorker.isDeleteFalse()) {
-                sendMessage(Command.Action.SUCCESS, "Файл " + path + " успешно удален.", ctx);
                 return;
             }
 
             sendMessage(Command.Action.ERROR, "Возникла ошибка при удалении файла/ов.", ctx);
         } catch (IOException e) {
             sendMessage(Command.Action.ERROR, e.getClass().getSimpleName() + ": " + e.getMessage(), ctx);
+        } finally {
+            sendList(lastRequestedPathForListing, ctx);
         }
     }
 
