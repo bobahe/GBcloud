@@ -1,9 +1,6 @@
 package ru.bobahe.gbcloud.client.viewmodel;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
@@ -53,6 +50,9 @@ public class globalViewModel {
 
     @Getter
     private IntegerProperty messageFromServerType = new SimpleIntegerProperty();
+
+    @Getter
+    private BooleanProperty isAuthenticated = new SimpleBooleanProperty(false);
 
     public globalViewModel setClient(Client client) {
         ourInstance.client = client;

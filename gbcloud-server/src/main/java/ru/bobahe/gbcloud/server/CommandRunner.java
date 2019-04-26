@@ -224,7 +224,8 @@ public class CommandRunner implements Invokable {
 
         AuthenticatedClients.getInstance().clients.put(folder, ctx.channel());
 
-        sendMessage(Command.Action.SUCCESS, "Вы успешно авторизованы.", ctx);
+//        sendMessage(Command.Action.SUCCESS, "Вы успешно авторизованы.", ctx);
+        sendMessage(Command.Action.AUTH, "OK", ctx);
 
         sendList(".", ctx);
     }

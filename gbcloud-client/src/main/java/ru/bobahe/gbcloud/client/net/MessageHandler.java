@@ -52,6 +52,9 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                     model.getMessageFromServerType().set(0);
                     model.getMessageFromServer().set(receivedCommand.getDescription());
                     break;
+                case AUTH:
+                    model.getIsAuthenticated().set(receivedCommand.getDescription().equals("OK"));
+                    break;
                 case LIST:
                     model.getServerFilesList().clear();
 

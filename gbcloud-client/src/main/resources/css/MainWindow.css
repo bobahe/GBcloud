@@ -1,0 +1,11 @@
+.main-vbox, .connected-vbox {
+    -fx-padding: 4;
+}
+
+.menu-bar, .menu-button .context-menu, .connected-vbox {
+    -fx-background-color: #444;
+}
+
+.menu-button .label {
+    -fx-text-fill: #eee;
+}

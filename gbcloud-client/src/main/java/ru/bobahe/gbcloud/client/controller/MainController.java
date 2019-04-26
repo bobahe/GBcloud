@@ -2,6 +2,7 @@ package ru.bobahe.gbcloud.client.controller;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -17,6 +18,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.bobahe.gbcloud.client.net.Client;
@@ -38,16 +41,19 @@ public class MainController implements Initializable {
     private StringProperty clientPath = model.getClientPath();
 
     @FXML
-    AnchorPane anchorPane;
+    private AnchorPane anchorPane;
 
     @FXML
-    GridPane clientGridPane;
+    private GridPane clientGridPane;
 
     @FXML
-    TableView<Filec> clientFilesTable, serverFilesTable;
+    private TableView<Filec> clientFilesTable, serverFilesTable;
 
     @FXML
-    Label lblClientPath, lblServerPath;
+    private Label lblClientPath, lblServerPath;
+
+    @FXML
+    private Circle connected;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -61,6 +67,13 @@ public class MainController implements Initializable {
         model.getClientFileList();
 
         model.getMessageFromServer().addListener(this::messageFromServer);
+        model.getIsAuthenticated().addListener(this::getAuthCommand);
+    }
+
+    private void getAuthCommand(Observable observable) {
+        if (((BooleanProperty) observable).get()) {
+            connected.setFill(Paint.valueOf("green"));
+        }
     }
 
     private void messageFromServer(Observable observable) {
@@ -156,7 +169,6 @@ public class MainController implements Initializable {
             model.changeDir(serverFilesTable, serverPath, false);
         }
     }
-
 
     public void serverFilesTableKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
