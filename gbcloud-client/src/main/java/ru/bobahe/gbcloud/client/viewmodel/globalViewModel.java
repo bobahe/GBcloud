@@ -1,5 +1,7 @@
 package ru.bobahe.gbcloud.client.viewmodel;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -23,9 +25,7 @@ public class globalViewModel {
     // region Singleton
     private static globalViewModel ourInstance = new globalViewModel();
 
-    private globalViewModel() {
-
-    }
+    private globalViewModel() {}
 
     public static globalViewModel getInstance() {
         return ourInstance;
@@ -42,13 +42,17 @@ public class globalViewModel {
     @Getter
     private ObservableList<Filec> serverFilesList = FXCollections.observableArrayList();
 
-    @Setter
     @Getter
     private StringProperty serverPath = new SimpleStringProperty();
 
-    @Setter
     @Getter
     private StringProperty clientPath = new SimpleStringProperty();
+
+    @Getter
+    private StringProperty messageFromServer = new SimpleStringProperty();
+
+    @Getter
+    private IntegerProperty messageFromServerType = new SimpleIntegerProperty();
 
     public globalViewModel setClient(Client client) {
         ourInstance.client = client;
