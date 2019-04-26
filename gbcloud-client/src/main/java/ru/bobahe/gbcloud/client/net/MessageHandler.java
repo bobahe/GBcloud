@@ -53,39 +53,34 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
+            // LIST
             if (response.getAction() == Command.Action.LIST) {
                 model.getServerFilesList().clear();
 
                 if (!model.getServerPath().get().equals(File.separator)) {
                     model.getServerFilesList().add(
-                            Filec.builder().name("..").isFolder("Папка").build()
+                            Filec.builder().name("..").isFolder("папка").build()
                     );
                 }
                 response.getChildFiles().forEach((n, f) ->
                         model.getServerFilesList().add(
-                                Filec.builder().name(n).isFolder(f ? "Папка" : "").build()
+                                Filec.builder().name(n).isFolder(f ? "папка" : "").build()
                         )
                 );
             }
 
+            // UPLOAD
             if (response.getAction() == Command.Action.UPLOAD) {
                 fileChunk.setFilePath(
                         ApplicationProperties.getInstance().getProperty("root.directory") +
-                                File.separator +
-                                "new-folder/test" +
-                                File.separator +
-                                "7.mp4"
+                                response.getPath()
                 );
-                fileChunk.setDestinationFilePath("from-bobah/");
+                fileChunk.setDestinationFilePath(response.getDestinationPath());
 
                 try {
-//                    ChannelHandler channelHandler = ctx.pipeline().removeFirst();
-
                     while (fileChunk.getNextChunk()) {
                         ctx.writeAndFlush(fileChunk);
                     }
-
-//                    ctx.pipeline().addFirst(channelHandler);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

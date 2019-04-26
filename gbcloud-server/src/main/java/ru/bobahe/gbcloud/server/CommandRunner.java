@@ -2,6 +2,7 @@ package ru.bobahe.gbcloud.server;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.Getter;
 import lombok.extern.java.Log;
 import ru.bobahe.gbcloud.common.Command;
 import ru.bobahe.gbcloud.common.FileChunk;
@@ -13,6 +14,7 @@ import ru.bobahe.gbcloud.server.properties.ApplicationProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Map;
@@ -26,6 +28,9 @@ public class CommandRunner implements Invokable {
     private static final AuthService authService = new SQLAuthService();
     private static final FileChunk fileChunk = new FileChunk();
     private static FileWorker fileWorker = new FileWorker();
+
+    @Getter
+    private String lastRequestedPathForListing;
 
     public static CommandRunner getInstance() {
         return ourInstance;
@@ -64,12 +69,17 @@ public class CommandRunner implements Invokable {
                 registerClient(command.getUsername(), command.getPassword(), ctx);
                 break;
             case UPLOAD:
-                sendMessage(Command.Action.UPLOAD, "Ready", ctx);
+                sendUploadEcho(command, ctx);
                 break;
             default:
                 sendMessage(Command.Action.ERROR, "Я еще не умею обрабатывать команды " + command.getAction(), ctx);
                 break;
         }
+    }
+
+    private void sendUploadEcho(Command command, ChannelHandlerContext ctx) {
+        responseCommand = command;
+        ctx.writeAndFlush(responseCommand);
     }
 
     private void registerClient(String username, String password, ChannelHandlerContext ctx) {
@@ -82,9 +92,9 @@ public class CommandRunner implements Invokable {
 
             fileWorker.createUserFolder(
                     Paths.get(
-                    ApplicationProperties.getInstance().getProperty("root.directory") +
-                            File.separator +
-                            uuidFolderName)
+                            ApplicationProperties.getInstance().getProperty("root.directory") +
+                                    File.separator +
+                                    uuidFolderName)
             );
         } catch (Exception e) {
             sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
@@ -112,7 +122,9 @@ public class CommandRunner implements Invokable {
         }
     }
 
-    private void sendList(String path, ChannelHandlerContext ctx) {
+    public void sendList(String path, ChannelHandlerContext ctx) {
+        lastRequestedPathForListing = path;
+
         try {
             Map<String, Boolean> list = fileWorker.getFileList(
                     ApplicationProperties.getInstance().getProperty("root.directory") +
@@ -134,25 +146,32 @@ public class CommandRunner implements Invokable {
     }
 
     private void sendFile(Command command, ChannelHandlerContext ctx) {
-        fileChunk.setFilePath(
-                ApplicationProperties.getInstance().getProperty("root.directory") +
-                        File.separator +
-                        findUserFolderByChannel(ctx) +
-                        File.separator +
-                        command.getPath() +
-                        File.separator +
-                        command.getFilename()
-        );
-        fileChunk.setDestinationFilePath(command.getDestinationPath());
+        String pathFromCopy = ApplicationProperties.getInstance().getProperty("root.directory") +
+                File.separator +
+                findUserFolderByChannel(ctx) +
+                command.getPath();
+        String fileName = command.getPath().substring(command.getPath().lastIndexOf(File.separator));
 
         try {
-            while (fileChunk.getNextChunk()) {
-                ctx.writeAndFlush(fileChunk);
-            }
+            Files.walk(Paths.get(pathFromCopy)).forEach(p -> {
+                if (!Files.isDirectory(p)) {
+                    String dstPath = command.getDestinationPath() +
+                            p.toString().substring(p.toString().indexOf(fileName), p.toString().lastIndexOf(File.separator));
 
-            sendMessage(Command.Action.SUCCESS, "Файл " + command.getFilename() + " успешно отправлен", ctx);
+                    fileChunk.setFilePath(p.toString());
+                    fileChunk.setDestinationFilePath(dstPath);
+
+                    try {
+                        while (fileChunk.getNextChunk()) {
+                            ctx.writeAndFlush(fileChunk);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         } catch (IOException e) {
-            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
+            e.printStackTrace();
         }
     }
 

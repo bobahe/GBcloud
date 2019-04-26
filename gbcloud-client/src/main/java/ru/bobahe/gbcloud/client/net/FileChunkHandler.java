@@ -3,7 +3,7 @@ package ru.bobahe.gbcloud.client.net;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
-import ru.bobahe.gbcloud.common.Command;
+import ru.bobahe.gbcloud.client.viewmodel.MainWindowModel;
 import ru.bobahe.gbcloud.common.FileChunk;
 import ru.bobahe.gbcloud.common.fs.FileWorker;
 
@@ -13,15 +13,13 @@ import java.nio.file.Paths;
 
 public class FileChunkHandler extends ChannelInboundHandlerAdapter {
     private static final FileWorker fileWorker = new FileWorker();
-    private Command responseCommand;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof FileChunk) {
             FileChunk fileChunk = (FileChunk) msg;
 
-            Path preparedPath = Paths.get(fileChunk.getFilePath())
-                    .subpath(2, Paths.get(fileChunk.getFilePath()).getNameCount());
+            Path preparedPath = Paths.get(fileChunk.getFilePath()).getFileName();
 
             if (fileChunk.getDestinationFilePath() != null) {
                 preparedPath = Paths.get(fileChunk.getDestinationFilePath()
@@ -36,11 +34,8 @@ public class FileChunkHandler extends ChannelInboundHandlerAdapter {
                         fileChunk.getLength()
                 );
             } else {
-                responseCommand = Command.builder()
-                        .action(Command.Action.SUCCESS)
-                        .description(preparedPath.toString())
-                        .build();
-                ctx.writeAndFlush(responseCommand);
+                MainWindowModel.getInstance().getClientFilesList().clear();
+                MainWindowModel.getInstance().getClientFileList();
             }
         }
     }

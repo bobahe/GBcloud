@@ -1,10 +1,7 @@
 package ru.bobahe.gbcloud.client.controller;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,31 +10,24 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import ru.bobahe.gbcloud.client.net.Client;
-import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
 import ru.bobahe.gbcloud.client.viewmodel.Filec;
 import ru.bobahe.gbcloud.client.viewmodel.MainWindowModel;
-import ru.bobahe.gbcloud.common.Command;
-import ru.bobahe.gbcloud.common.fs.FileWorker;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
-    private ObservableList<Filec> clientFilesList = MainWindowModel.getInstance().getClientFilesList();
-    private ObservableList<Filec> serverFilesList = MainWindowModel.getInstance().getServerFilesList();
-    private StringProperty serverPath = MainWindowModel.getInstance().getServerPath();
-    private StringProperty clientPath = new SimpleStringProperty();
-
     private static final Client client = new Client();
-    private static Command responseCommand;
+    private MainWindowModel model = MainWindowModel.getInstance().setClient(client);
+    private ObservableList<Filec> clientFilesList = model.getClientFilesList();
+    private ObservableList<Filec> serverFilesList = model.getServerFilesList();
+    private StringProperty serverPath = model.getServerPath();
+    private StringProperty clientPath = model.getClientPath();
 
     @FXML
     GridPane clientGridPane;
@@ -57,7 +47,7 @@ public class MainController implements Initializable {
 
         prepareTableViews();
 
-        getClientFileList();
+        model.getClientFileList();
     }
 
     private void prepareTableViews() {
@@ -91,29 +81,20 @@ public class MainController implements Initializable {
         return newColumn;
     }
 
-    private void getClientFileList() {
-        try {
-            if (!clientPath.get().equals(File.separator)) {
-                clientFilesList.add(Filec.builder().name("..").isFolder("Папка").build());
-            }
-            Map<String, Boolean> fileList = new FileWorker().getFileList(
-                    ApplicationProperties.getInstance().getProperty("root.directory") +
-                    clientPath.get());
-            fileList.forEach((n, f) -> clientFilesList.add(Filec.builder().name(n).isFolder(f ? "Папка" : "").build()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void clientFilesTableClick(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() > 1) {
-            changeDir(clientFilesTable, clientPath, true);
+            model.changeDir(clientFilesTable, clientPath, true);
         }
     }
 
     public void clientFilesTableKeyPressed(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER) {
-            changeDir(clientFilesTable, clientPath, true);
+        switch (keyEvent.getCode()) {
+            case ENTER:
+                model.changeDir(clientFilesTable, clientPath, true);
+                break;
+            case F5:
+                model.copyToServer(clientFilesTable, clientPath, serverPath);
+                break;
         }
     }
 
@@ -131,47 +112,19 @@ public class MainController implements Initializable {
 
     public void serverFilesTableClick(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() > 1) {
-            changeDir(serverFilesTable, serverPath, false);
+            model.changeDir(serverFilesTable, serverPath, false);
         }
     }
 
 
     public void serverFilesTableKeyPressed(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER) {
-            changeDir(serverFilesTable, serverPath, false);
-        }
-    }
-
-    private void changeDir(TableView<Filec> tw, StringProperty path, boolean isClientPath) {
-        Filec selectedItem = tw.getSelectionModel().getSelectedItem();
-
-        if (selectedItem == null) {
-            return;
-        }
-
-        if (selectedItem.getIsFolder().equals("Папка")) {
-            if (selectedItem.getName().equals("..")) {
-                int lastIndex = path.get().length() - 2;
-                path.setValue(
-                        path.get().substring(
-                                0,
-                                path.get().substring(0, lastIndex).lastIndexOf(File.separator) + 1
-                        )
-                );
-            } else {
-                path.setValue(path.get() + selectedItem.getName() + File.separator);
-            }
-
-            if (isClientPath) {
-                clientFilesList.clear();
-                getClientFileList();
-            } else {
-                responseCommand = Command.builder()
-                        .action(Command.Action.LIST)
-                        .path(serverPath.get())
-                        .build();
-                client.getChannel().writeAndFlush(responseCommand);
-            }
+        switch (keyEvent.getCode()) {
+            case ENTER:
+                model.changeDir(serverFilesTable, serverPath, false);
+                break;
+            case F5:
+                model.copyFromServer(serverFilesTable, clientPath, serverPath);
+                break;
         }
     }
 }
