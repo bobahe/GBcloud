@@ -12,6 +12,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.viewmodel.Filec;
@@ -28,6 +29,9 @@ public class MainController implements Initializable {
     private ObservableList<Filec> serverFilesList = model.getServerFilesList();
     private StringProperty serverPath = model.getServerPath();
     private StringProperty clientPath = model.getClientPath();
+
+    @FXML
+    AnchorPane anchorPane;
 
     @FXML
     GridPane clientGridPane;
