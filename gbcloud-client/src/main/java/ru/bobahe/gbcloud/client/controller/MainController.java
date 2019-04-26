@@ -66,13 +66,16 @@ public class MainController implements Initializable {
     private void messageFromServer(Observable observable) {
         Platform.runLater(() -> {
             Alert.AlertType type = Alert.AlertType.ERROR;
+            String headerText = "Ошибка";
 
             if (model.getMessageFromServerType().get() == 0) {
                 type = Alert.AlertType.INFORMATION;
+                headerText = "Успех";
             }
 
             Alert alert = new Alert(type, ((StringProperty) observable).get(), ButtonType.OK);
             alert.setTitle("Собщение от сервера");
+            alert.setHeaderText(headerText);
             alert.showAndWait();
         });
     }
@@ -189,7 +192,7 @@ public class MainController implements Initializable {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/NewDirectory.fxml"));
             Parent root = loader.load();
-            NewDirectoryController controller = (NewDirectoryController) loader.getController();
+            NewDirectoryController controller = loader.getController();
             controller.setPath(isClient ? clientPath.get() : serverPath.get());
             controller.setClient(isClient);
 
