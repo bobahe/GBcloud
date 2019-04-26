@@ -19,7 +19,7 @@
             </Menu>
         </MenuBar>
 
-        <AnchorPane fx:id="anchorPane" prefHeight="${anchorPane.parent.height}">
+        <AnchorPane fx:id="anchorPane" VBox.vgrow="ALWAYS">
             <GridPane fx:id="clientGridPane" hgap="2"
                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
