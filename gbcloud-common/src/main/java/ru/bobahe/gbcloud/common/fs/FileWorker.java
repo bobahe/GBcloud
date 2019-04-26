@@ -101,7 +101,7 @@ public class FileWorker {
         return false;
     }
 
-    public void createUserFolder(Path path) throws IOException {
-        Files.createDirectory(path);
+    public void createDirectory(Path path) throws IOException {
+        Files.createDirectories(path);
     }
 }

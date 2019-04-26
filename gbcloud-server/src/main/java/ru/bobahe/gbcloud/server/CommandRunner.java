@@ -65,6 +65,9 @@ public class CommandRunner implements Invokable {
             case DELETE:
                 delete(command.getPath(), ctx);
                 break;
+            case CREATE:
+                createDirectory(command, ctx);
+                break;
             case REGISTER:
                 registerClient(command.getUsername(), command.getPassword(), ctx);
                 break;
@@ -74,6 +77,20 @@ public class CommandRunner implements Invokable {
             default:
                 sendMessage(Command.Action.ERROR, "Я еще не умею обрабатывать команды " + command.getAction(), ctx);
                 break;
+        }
+    }
+
+    private void createDirectory(Command command, ChannelHandlerContext ctx) {
+        try {
+            fileWorker.createDirectory(Paths.get(
+                    ApplicationProperties.getInstance().getProperty("root.directory") +
+                            File.separator +
+                            findUserFolderByChannel(ctx) +
+                            command.getPath()
+            ));
+            sendList(lastRequestedPathForListing, ctx);
+        } catch (IOException e) {
+            sendMessage(Command.Action.ERROR, "Не удалось создать папку.", ctx);
         }
     }
 
@@ -90,7 +107,7 @@ public class CommandRunner implements Invokable {
 
             sendMessage(Command.Action.SUCCESS, "Вы успешно зарегистрированы.", ctx);
 
-            fileWorker.createUserFolder(
+            fileWorker.createDirectory(
                     Paths.get(
                             ApplicationProperties.getInstance().getProperty("root.directory") +
                                     File.separator +

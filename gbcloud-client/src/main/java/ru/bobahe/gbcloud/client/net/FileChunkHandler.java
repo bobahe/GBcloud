@@ -3,7 +3,7 @@ package ru.bobahe.gbcloud.client.net;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
-import ru.bobahe.gbcloud.client.viewmodel.MainWindowModel;
+import ru.bobahe.gbcloud.client.viewmodel.globalViewModel;
 import ru.bobahe.gbcloud.common.FileChunk;
 import ru.bobahe.gbcloud.common.fs.FileWorker;
 
@@ -34,8 +34,8 @@ public class FileChunkHandler extends ChannelInboundHandlerAdapter {
                         fileChunk.getLength()
                 );
             } else {
-                MainWindowModel.getInstance().getClientFilesList().clear();
-                MainWindowModel.getInstance().getClientFileList();
+                globalViewModel.getInstance().getClientFilesList().clear();
+                globalViewModel.getInstance().getClientFileList();
             }
         }
     }

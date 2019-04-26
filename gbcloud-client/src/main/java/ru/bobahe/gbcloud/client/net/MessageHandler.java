@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
 import ru.bobahe.gbcloud.client.viewmodel.Filec;
-import ru.bobahe.gbcloud.client.viewmodel.MainWindowModel;
+import ru.bobahe.gbcloud.client.viewmodel.globalViewModel;
 import ru.bobahe.gbcloud.common.Command;
 import ru.bobahe.gbcloud.common.FileChunk;
 
@@ -15,7 +15,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
     private Command responseCommand;
     private static final FileChunk fileChunk = new FileChunk();
 
-    private MainWindowModel model = MainWindowModel.getInstance();
+    private globalViewModel model = globalViewModel.getInstance();
 
     public MessageHandler() {
 

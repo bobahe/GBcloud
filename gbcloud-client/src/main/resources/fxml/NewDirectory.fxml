@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="globParent" alignment="center"
+      xmlns="http://javafx.com/javafx/8.0.112-ea" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ru.bobahe.gbcloud.client.controller.NewDirectoryController">
+    <TextField fx:id="directoryName" maxWidth="250" promptText="...directory name"
+               onAction="#createDirectory">
+        <VBox.margin>
+            <Insets bottom="10.0"/>
+        </VBox.margin>
+    </TextField>
+    <Button onAction="#createDirectory" prefWidth="250" text="Создать">
+        <VBox.margin>
+            <Insets top="10.0"/>
+        </VBox.margin>
+    </Button>
+</VBox>

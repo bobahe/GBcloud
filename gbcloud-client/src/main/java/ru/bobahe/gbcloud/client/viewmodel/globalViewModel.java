@@ -19,21 +19,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class MainWindowModel {
-    private static MainWindowModel ourInstance = new MainWindowModel();
+public class globalViewModel {
+    // region Singleton
+    private static globalViewModel ourInstance = new globalViewModel();
 
-    private MainWindowModel() {
+    private globalViewModel() {
 
     }
 
-    public static MainWindowModel getInstance() {
+    public static globalViewModel getInstance() {
         return ourInstance;
     }
+    // endregion
 
     private Client client;
     private Command responseCommand;
     private FileWorker fileWorker = new FileWorker();
-
 
     @Getter
     private ObservableList<Filec> clientFilesList = FXCollections.observableArrayList();
@@ -49,7 +50,7 @@ public class MainWindowModel {
     @Getter
     private StringProperty clientPath = new SimpleStringProperty();
 
-    public MainWindowModel setClient(Client client) {
+    public globalViewModel setClient(Client client) {
         ourInstance.client = client;
         return ourInstance;
     }
@@ -186,6 +187,25 @@ public class MainWindowModel {
             responseCommand = Command.builder()
                     .action(Command.Action.DELETE)
                     .path(serverPath.get() + selecteItem.getName())
+                    .build();
+            client.getChannel().writeAndFlush(responseCommand);
+        }
+    }
+
+    public void createDirectory(boolean isClient, String path) throws Exception {
+        if (isClient) {
+            fileWorker.createDirectory(Paths.get(
+                    ApplicationProperties.getInstance().getProperty("root.directory") + path));
+            clientFilesList.clear();
+            getClientFileList();
+        } else {
+            if (client.getChannel() == null) {
+                return;
+            }
+
+            responseCommand = Command.builder()
+                    .action(Command.Action.CREATE)
+                    .path(path)
                     .build();
             client.getChannel().writeAndFlush(responseCommand);
         }

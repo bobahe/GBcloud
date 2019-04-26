@@ -16,6 +16,7 @@ public class Command implements Serializable {
         SUCCESS,
         UPLOAD,
         DELETE,
+        CREATE,
         DOWNLOAD,
         LIST,
         AUTH,
