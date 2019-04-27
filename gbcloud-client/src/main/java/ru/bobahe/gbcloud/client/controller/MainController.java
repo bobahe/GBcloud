@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-// todo Сделать контекстное меню для TableView
-
 public class MainController implements Initializable {
     private static final Client client = new Client();
     private globalViewModel model = globalViewModel.getInstance().setClient(client);
@@ -55,6 +53,9 @@ public class MainController implements Initializable {
     @FXML
     private Circle connected;
 
+    @FXML
+    private ContextMenu serverFilesMenu;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         clientPath.setValue(File.separator);
@@ -71,7 +72,9 @@ public class MainController implements Initializable {
     }
 
     private void getAuthCommand(Observable observable) {
-        if (((BooleanProperty) observable).get()) {
+        boolean isAuthOk = ((BooleanProperty) observable).get();
+        serverFilesMenu.getItems().forEach(mi -> mi.setDisable(!isAuthOk));
+        if (isAuthOk) {
             connected.setFill(Paint.valueOf("green"));
         }
     }
@@ -215,6 +218,37 @@ public class MainController implements Initializable {
             stage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private boolean isClientContextMenu(ActionEvent actionEvent) {
+        return ((MenuItem) actionEvent.getSource()).getParentPopup().getId().startsWith("client");
+    }
+
+    public void newDirectoryMenuItemClicked(ActionEvent actionEvent) {
+        showNewDirectoryModal(isClientContextMenu(actionEvent));
+    }
+
+    public void deleteMenuItemClicked(ActionEvent actionEvent) {
+        try {
+            TableView<Filec> tw = serverFilesTable;
+            if (isClientContextMenu(actionEvent)) {
+                tw = clientFilesTable;
+            }
+            model.delete(isClientContextMenu(actionEvent), tw);
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
+            alert.setTitle("Удаление");
+            alert.setHeaderText("Ошибка");
+            alert.showAndWait();
+        }
+    }
+
+    public void copyMenuItemClicked(ActionEvent actionEvent) {
+        if (isClientContextMenu(actionEvent)) {
+            model.copyToServer(clientFilesTable, clientPath, serverPath);
+        } else {
+            model.copyFromServer(serverFilesTable, clientPath, serverPath);
         }
     }
 }

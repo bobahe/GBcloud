@@ -7,6 +7,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.control.ContextMenu?>
+<?import com.sun.javafx.scene.control.skin.ContextMenuContent.MenuBox?>
+<?import com.sun.javafx.scene.control.skin.ContextMenuContent.ArrowMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <StackPane prefHeight="1024" prefWidth="768"
            style="-fx-background-color: transparent;"
            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.112-ea"
@@ -52,6 +56,16 @@
                     <placeholder>
                         <Label text="Здесь пока ничего нет."/>
                     </placeholder>
+                    <contextMenu>
+                        <ContextMenu fx:id="clientFilesMenu">
+                            <items>
+                                <MenuItem text="Копировать на сервер" onAction="#copyMenuItemClicked"/>
+                                <MenuItem text="Удалить" onAction="#deleteMenuItemClicked"/>
+                                <SeparatorMenuItem/>
+                                <MenuItem text="Новая папка" onAction="#newDirectoryMenuItemClicked"/>
+                            </items>
+                        </ContextMenu>
+                    </contextMenu>
                 </TableView>
                 <TableView fx:id="serverFilesTable" GridPane.columnIndex="2" GridPane.rowIndex="1"
                            GridPane.columnSpan="2"
@@ -59,6 +73,19 @@
                     <placeholder>
                         <Label text="Здесь пока ничего нет."/>
                     </placeholder>
+                    <contextMenu>
+                        <ContextMenu fx:id="serverFilesMenu">
+                            <items>
+                                <MenuItem text="Копировать с сервера" onAction="#copyMenuItemClicked"
+                                          disable="true"/>
+                                <MenuItem text="Удалить" onAction="#deleteMenuItemClicked"
+                                          disable="true"/>
+                                <SeparatorMenuItem/>
+                                <MenuItem text="Новая папка" onAction="#newDirectoryMenuItemClicked"
+                                          disable="true"/>
+                            </items>
+                        </ContextMenu>
+                    </contextMenu>
                 </TableView>
             </GridPane>
         </AnchorPane>
