@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import lombok.Getter;
-import lombok.Setter;
 import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
 import ru.bobahe.gbcloud.common.Command;
@@ -18,13 +17,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class globalViewModel {
+public class GlobalViewModel {
     // region Singleton
-    private static globalViewModel ourInstance = new globalViewModel();
+    private static GlobalViewModel ourInstance = new GlobalViewModel();
 
-    private globalViewModel() {}
+    private GlobalViewModel() {}
 
-    public static globalViewModel getInstance() {
+    public static GlobalViewModel getInstance() {
         return ourInstance;
     }
     // endregion
@@ -54,7 +53,7 @@ public class globalViewModel {
     @Getter
     private BooleanProperty isAuthenticated = new SimpleBooleanProperty(false);
 
-    public globalViewModel setClient(Client client) {
+    public GlobalViewModel setClient(Client client) {
         ourInstance.client = client;
         return ourInstance;
     }

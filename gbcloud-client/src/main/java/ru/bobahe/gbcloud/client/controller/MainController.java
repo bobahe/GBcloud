@@ -23,7 +23,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.viewmodel.Filec;
-import ru.bobahe.gbcloud.client.viewmodel.globalViewModel;
+import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     private static final Client client = new Client();
-    private globalViewModel model = globalViewModel.getInstance().setClient(client);
+    private GlobalViewModel model = GlobalViewModel.getInstance().setClient(client);
     private ObservableList<Filec> clientFilesList = model.getClientFilesList();
     private ObservableList<Filec> serverFilesList = model.getServerFilesList();
     private StringProperty serverPath = model.getServerPath();

@@ -5,10 +5,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import lombok.Setter;
-import ru.bobahe.gbcloud.client.viewmodel.globalViewModel;
+import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
 public class NewDirectoryController {
-    globalViewModel model = globalViewModel.getInstance();
+    GlobalViewModel model = GlobalViewModel.getInstance();
 
     @FXML
     TextField directoryName;
