@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+//todo Сделать форму для авторизации и регистрации
+
 public class MainApp extends Application {
     public static void main(String[] args) {
         launch(args);

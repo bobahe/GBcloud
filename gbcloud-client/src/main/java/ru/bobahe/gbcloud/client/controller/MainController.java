@@ -3,7 +3,6 @@ package ru.bobahe.gbcloud.client.controller;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,8 +28,9 @@ import ru.bobahe.gbcloud.client.viewmodel.globalViewModel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
+
+// todo Сделать контекстное меню для TableView
 
 public class MainController implements Initializable {
     private static final Client client = new Client();
