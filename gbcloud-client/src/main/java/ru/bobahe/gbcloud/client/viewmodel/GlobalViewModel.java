@@ -7,7 +7,9 @@ import javafx.scene.control.TableView;
 import lombok.Getter;
 import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
-import ru.bobahe.gbcloud.common.Command;
+import ru.bobahe.gbcloud.common.command.Action;
+import ru.bobahe.gbcloud.common.command.Command;
+import ru.bobahe.gbcloud.common.command.parameters.FileParameters;
 import ru.bobahe.gbcloud.common.fs.FileWorker;
 
 import java.io.File;
@@ -74,8 +76,8 @@ public class GlobalViewModel {
 
     private void getServerFileList() {
         responseCommand = Command.builder()
-                .action(Command.Action.LIST)
-                .path(serverPath.get())
+                .action(Action.LIST)
+                .parameters(new FileParameters(serverPath.get(), null))
                 .build();
         client.getChannel().writeAndFlush(responseCommand);
     }
@@ -135,9 +137,8 @@ public class GlobalViewModel {
                     }
 
                     responseCommand = Command.builder()
-                            .action(Command.Action.UPLOAD)
-                            .path(File.separator + p.subpath(1, p.getNameCount()).toString())
-                            .destinationPath(dstPath)
+                            .action(Action.UPLOAD)
+                            .parameters(new FileParameters(File.separator + p.subpath(1, p.getNameCount()).toString(), dstPath))
                             .build();
                     client.getChannel().writeAndFlush(responseCommand);
                 }
@@ -159,9 +160,8 @@ public class GlobalViewModel {
         }
 
         responseCommand = Command.builder()
-                .action(Command.Action.DOWNLOAD)
-                .path(serverPath.get() + selectedItem.getName())
-                .destinationPath(clientPath.get())
+                .action(Action.DOWNLOAD)
+                .parameters(new FileParameters(serverPath.get() + selectedItem.getName(), clientPath.get()))
                 .build();
         client.getChannel().writeAndFlush(responseCommand);
     }
@@ -188,8 +188,8 @@ public class GlobalViewModel {
             }
 
             responseCommand = Command.builder()
-                    .action(Command.Action.DELETE)
-                    .path(serverPath.get() + selecteItem.getName())
+                    .action(Action.DELETE)
+                    .parameters(new FileParameters(serverPath.get() + selecteItem.getName(), null))
                     .build();
             client.getChannel().writeAndFlush(responseCommand);
         }
@@ -207,8 +207,8 @@ public class GlobalViewModel {
             }
 
             responseCommand = Command.builder()
-                    .action(Command.Action.CREATE)
-                    .path(path)
+                    .action(Action.CREATE)
+                    .parameters(new FileParameters(path, null))
                     .build();
             client.getChannel().writeAndFlush(responseCommand);
         }

@@ -3,9 +3,14 @@ package ru.bobahe.gbcloud.server;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import ru.bobahe.gbcloud.common.Command;
 import ru.bobahe.gbcloud.common.FileChunk;
 import ru.bobahe.gbcloud.common.Invokable;
+import ru.bobahe.gbcloud.common.command.Action;
+import ru.bobahe.gbcloud.common.command.Command;
+import ru.bobahe.gbcloud.common.command.parameters.CredentialParameters;
+import ru.bobahe.gbcloud.common.command.parameters.DescriptionParameters;
+import ru.bobahe.gbcloud.common.command.parameters.FileParameters;
+import ru.bobahe.gbcloud.common.command.parameters.ListParameters;
 import ru.bobahe.gbcloud.common.fs.FileWorker;
 import ru.bobahe.gbcloud.server.auth.AuthService;
 import ru.bobahe.gbcloud.server.auth.SQLAuthService;
@@ -37,11 +42,8 @@ public class CommandRunner implements Invokable {
 
     @Override
     public void invoke(Command command, ChannelHandlerContext ctx) {
-        if (!isAuthenticated &&
-                command.getAction() != Command.Action.AUTH &&
-                command.getAction() != Command.Action.REGISTER) {
-            responseCommand = Command.builder().action(Command.Action.ERROR).description("Вы не авторизовались.").build();
-            ctx.write(responseCommand);
+        if (!isAuthenticated && command.getAction() != Action.AUTH && command.getAction() != Action.REGISTER) {
+            sendMessage(Action.ERROR, "Вы не авторизовались.", ctx);
             return;
         }
 
@@ -49,38 +51,56 @@ public class CommandRunner implements Invokable {
 
         switch (command.getAction()) {
             case AUTH:
-                authenticate(command.getUsername(), command.getPassword(), ctx);
+                if (command.getParameters() instanceof CredentialParameters) {
+                    CredentialParameters params = ((CredentialParameters) command.getParameters());
+                    authenticate(params.getUsername(), params.getPassword(), ctx);
+                }
                 break;
             case DOWNLOAD:
-                sendFile(command, ctx);
+                if (command.getParameters() instanceof FileParameters) {
+                    FileParameters params = ((FileParameters) command.getParameters());
+                    sendFile(params.getPath(), params.getDestinationPath(), ctx);
+                }
                 break;
             case LIST:
-                sendList(command.getPath(), ctx);
+                if (command.getParameters() instanceof ListParameters) {
+                    ListParameters params = ((ListParameters) command.getParameters());
+                    sendList(params.getPath(), ctx);
+                }
                 break;
             case DELETE:
-                delete(command.getPath(), ctx);
+                if (command.getParameters() instanceof FileParameters) {
+                    FileParameters params = ((FileParameters) command.getParameters());
+                    delete(params.getPath(), ctx);
+                }
                 break;
             case CREATE:
-                createDirectory(command, ctx);
+                if (command.getParameters() instanceof FileParameters) {
+                    FileParameters params = ((FileParameters) command.getParameters());
+                    createDirectory(params.getPath(), ctx);
+                }
                 break;
             case REGISTER:
-                registerClient(command.getUsername(), command.getPassword(), ctx);
+                if (command.getParameters() instanceof CredentialParameters) {
+                    CredentialParameters params = ((CredentialParameters) command.getParameters());
+                    registerClient(params.getUsername(), params.getPassword(), ctx);
+                }
                 break;
             case UPLOAD:
                 sendUploadEcho(command, ctx);
                 break;
             default:
-                sendMessage(Command.Action.ERROR, "Я еще не умею обрабатывать команды " + command.getAction(), ctx);
+                sendMessage(Action.ERROR, "Я еще не умею обрабатывать команды " + command.getAction(), ctx);
                 break;
         }
     }
 
-    private void createDirectory(Command command, ChannelHandlerContext ctx) {
+    private void createDirectory(String path, ChannelHandlerContext ctx) {
         try {
-            fileWorker.createDirectory(Paths.get(clientFolder + command.getPath()));
+            fileWorker.createDirectory(Paths.get(clientFolder + path));
             sendList(lastRequestedPathForListing, ctx);
         } catch (IOException e) {
-            sendMessage(Command.Action.ERROR, "Не удалось создать папку.", ctx);
+            sendMessage(Action.ERROR, "Не удалось создать папку.", ctx);
         }
     }
 
@@ -91,7 +111,7 @@ public class CommandRunner implements Invokable {
 
     private void registerClient(String username, String password, ChannelHandlerContext ctx) {
         try {
-            String hashedPassword = new String(MessageDigest.getInstance("MD5").digest());
+            String hashedPassword = new String(MessageDigest.getInstance("MD5").digest(password.getBytes()));
             String uuidFolderName = UUID.randomUUID().toString();
             authService.insertNewUser(username, hashedPassword, uuidFolderName);
 
@@ -103,9 +123,9 @@ public class CommandRunner implements Invokable {
                                     uuidFolderName)
             );
 
-            sendMessage(Command.Action.SUCCESS, "Вы успешно зарегистрированы.", ctx);
+            sendMessage(Action.SUCCESS, "Вы успешно зарегистрированы.", ctx);
         } catch (Exception e) {
-            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
+            sendMessage(Action.ERROR, e.getMessage(), ctx);
         }
     }
 
@@ -117,9 +137,9 @@ public class CommandRunner implements Invokable {
                 return;
             }
 
-            sendMessage(Command.Action.ERROR, "Возникла ошибка при удалении файла/ов.", ctx);
+            sendMessage(Action.ERROR, "Возникла ошибка при удалении файла/ов.", ctx);
         } catch (IOException e) {
-            sendMessage(Command.Action.ERROR, e.getClass().getSimpleName() + ": " + e.getMessage(), ctx);
+            sendMessage(Action.ERROR, e.getClass().getSimpleName() + ": " + e.getMessage(), ctx);
         } finally {
             sendList(lastRequestedPathForListing, ctx);
         }
@@ -131,25 +151,21 @@ public class CommandRunner implements Invokable {
         try {
             Map<String, Boolean> list = fileWorker.getFileList(clientFolder + File.separator + path);
 
-            responseCommand = Command.builder()
-                    .action(Command.Action.LIST)
-                    .path(path)
-                    .childFiles(list)
-                    .build();
+            responseCommand = Command.builder().action(Action.LIST).parameters(new ListParameters(path, list)).build();
             ctx.writeAndFlush(responseCommand);
         } catch (IOException e) {
-            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
+            sendMessage(Action.ERROR, e.getMessage(), ctx);
         }
     }
 
-    private void sendFile(Command command, ChannelHandlerContext ctx) {
-        String pathFromCopy = clientFolder + command.getPath();
-        String fileName = command.getPath().substring(command.getPath().lastIndexOf(File.separator));
+    private void sendFile(String path, String destinationPath, ChannelHandlerContext ctx) {
+        String pathFromCopy = clientFolder + path;
+        String fileName = path.substring(path.lastIndexOf(File.separator));
 
         try {
             Files.walk(Paths.get(pathFromCopy)).forEach(p -> {
                 if (!Files.isDirectory(p)) {
-                    String dstPath = command.getDestinationPath() +
+                    String dstPath = destinationPath +
                             p.toString().substring(p.toString().indexOf(fileName), p.toString().lastIndexOf(File.separator));
 
                     fileChunk.setFilePath(p.toString());
@@ -169,40 +185,40 @@ public class CommandRunner implements Invokable {
         }
     }
 
-    private void sendMessage(Command.Action action, String s, ChannelHandlerContext ctx) {
-        responseCommand = Command.builder().action(action).description(s).build();
-        ctx.writeAndFlush(responseCommand);
-    }
-
     private void authenticate(String username, String password, ChannelHandlerContext ctx) {
         String folder = null;
 
         try {
             folder = authService.getFolderByUsernameAndPassword(
                     username,
-                    new String(MessageDigest.getInstance("MD5").digest())
+                    new String(MessageDigest.getInstance("MD5").digest(password.getBytes()))
             );
         } catch (Exception e) {
-            sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
+            sendMessage(Action.ERROR, e.getMessage(), ctx);
         }
 
         if (folder == null) {
-            sendMessage(Command.Action.ERROR, "Неверные логин и/или пароль.", ctx);
+            sendMessage(Action.ERROR, "Неверные логин и/или пароль.", ctx);
             return;
         }
 
         clientFolder = ApplicationProperties.getInstance().getProperty("root.directory") + File.separator + folder;
 
         if (!new FileWorker().checkFolders(Paths.get(clientFolder))) {
-            sendMessage(Command.Action.ERROR, "На сервере отсутствует Ваша папка. Обратитесь к системному администратору.", ctx);
+            sendMessage(Action.ERROR, "На сервере отсутствует Ваша папка. Обратитесь к системному администратору.", ctx);
             ctx.close();
             return;
         }
 
         isAuthenticated = true;
 
-        sendMessage(Command.Action.AUTH, "OK", ctx);
+        sendMessage(Action.AUTH, "OK", ctx);
 
         sendList(".", ctx);
+    }
+
+    private void sendMessage(Action action, String message, ChannelHandlerContext ctx) {
+        responseCommand = Command.builder().action(action).parameters(new DescriptionParameters(message)).build();
+        ctx.writeAndFlush(responseCommand);
     }
 }

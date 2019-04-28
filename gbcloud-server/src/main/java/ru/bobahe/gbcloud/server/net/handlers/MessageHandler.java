@@ -3,7 +3,7 @@ package ru.bobahe.gbcloud.server.net.handlers;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.java.Log;
-import ru.bobahe.gbcloud.common.Command;
+import ru.bobahe.gbcloud.common.command.Command;
 import ru.bobahe.gbcloud.server.CommandRunner;
 
 @Log
