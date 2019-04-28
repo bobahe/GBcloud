@@ -1,6 +1,5 @@
 package ru.bobahe.gbcloud.server;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -22,8 +21,6 @@ import java.util.UUID;
 
 @Log
 public class CommandRunner implements Invokable {
-    private static CommandRunner ourInstance = new CommandRunner();
-
     private Command responseCommand;
     private static final AuthService authService = new SQLAuthService();
     private static final FileChunk fileChunk = new FileChunk();
@@ -32,17 +29,15 @@ public class CommandRunner implements Invokable {
     @Getter
     private String lastRequestedPathForListing;
 
-    public static CommandRunner getInstance() {
-        return ourInstance;
-    }
+    @Getter
+    private boolean isAuthenticated;
 
-    private CommandRunner() {
-
-    }
+    @Getter
+    private String clientFolder;
 
     @Override
     public void invoke(Command command, ChannelHandlerContext ctx) {
-        if (!isAuthenticatedClient(ctx.channel()) &&
+        if (!isAuthenticated &&
                 command.getAction() != Command.Action.AUTH &&
                 command.getAction() != Command.Action.REGISTER) {
             responseCommand = Command.builder().action(Command.Action.ERROR).description("Вы не авторизовались.").build();
@@ -82,12 +77,7 @@ public class CommandRunner implements Invokable {
 
     private void createDirectory(Command command, ChannelHandlerContext ctx) {
         try {
-            fileWorker.createDirectory(Paths.get(
-                    ApplicationProperties.getInstance().getProperty("root.directory") +
-                            File.separator +
-                            findUserFolderByChannel(ctx) +
-                            command.getPath()
-            ));
+            fileWorker.createDirectory(Paths.get(clientFolder + command.getPath()));
             sendList(lastRequestedPathForListing, ctx);
         } catch (IOException e) {
             sendMessage(Command.Action.ERROR, "Не удалось создать папку.", ctx);
@@ -105,7 +95,6 @@ public class CommandRunner implements Invokable {
             String uuidFolderName = UUID.randomUUID().toString();
             authService.insertNewUser(username, hashedPassword, uuidFolderName);
 
-            sendMessage(Command.Action.SUCCESS, "Вы успешно зарегистрированы.", ctx);
 
             fileWorker.createDirectory(
                     Paths.get(
@@ -113,6 +102,8 @@ public class CommandRunner implements Invokable {
                                     File.separator +
                                     uuidFolderName)
             );
+
+            sendMessage(Command.Action.SUCCESS, "Вы успешно зарегистрированы.", ctx);
         } catch (Exception e) {
             sendMessage(Command.Action.ERROR, e.getMessage(), ctx);
         }
@@ -120,13 +111,7 @@ public class CommandRunner implements Invokable {
 
     private void delete(String path, ChannelHandlerContext ctx) {
         try {
-            fileWorker.delete(Paths.get(
-                    ApplicationProperties.getInstance().getProperty("root.directory") +
-                            File.separator +
-                            findUserFolderByChannel(ctx) +
-                            File.separator +
-                            path
-            ));
+            fileWorker.delete(Paths.get(clientFolder + File.separator + path));
 
             if (!fileWorker.isDeleteFalse()) {
                 return;
@@ -144,13 +129,7 @@ public class CommandRunner implements Invokable {
         lastRequestedPathForListing = path;
 
         try {
-            Map<String, Boolean> list = fileWorker.getFileList(
-                    ApplicationProperties.getInstance().getProperty("root.directory") +
-                            File.separator +
-                            findUserFolderByChannel(ctx) +
-                            File.separator +
-                            path
-            );
+            Map<String, Boolean> list = fileWorker.getFileList(clientFolder + File.separator + path);
 
             responseCommand = Command.builder()
                     .action(Command.Action.LIST)
@@ -164,10 +143,7 @@ public class CommandRunner implements Invokable {
     }
 
     private void sendFile(Command command, ChannelHandlerContext ctx) {
-        String pathFromCopy = ApplicationProperties.getInstance().getProperty("root.directory") +
-                File.separator +
-                findUserFolderByChannel(ctx) +
-                command.getPath();
+        String pathFromCopy = clientFolder + command.getPath();
         String fileName = command.getPath().substring(command.getPath().lastIndexOf(File.separator));
 
         try {
@@ -215,32 +191,18 @@ public class CommandRunner implements Invokable {
             return;
         }
 
-        if (!new FileWorker().checkFolders(Paths.get(
-                ApplicationProperties.getInstance().getProperty("root.directory") + File.separator + folder))) {
+        clientFolder = ApplicationProperties.getInstance().getProperty("root.directory") + File.separator + folder;
+
+        if (!new FileWorker().checkFolders(Paths.get(clientFolder))) {
             sendMessage(Command.Action.ERROR, "На сервере отсутствует Ваша папка. Обратитесь к системному администратору.", ctx);
             ctx.close();
             return;
         }
 
-        AuthenticatedClients.getInstance().clients.put(folder, ctx.channel());
+        isAuthenticated = true;
 
-//        sendMessage(Command.Action.SUCCESS, "Вы успешно авторизованы.", ctx);
         sendMessage(Command.Action.AUTH, "OK", ctx);
 
         sendList(".", ctx);
-    }
-
-    private boolean isAuthenticatedClient(Channel channel) {
-        return AuthenticatedClients.getInstance().clients.containsValue(channel);
-    }
-
-    private String findUserFolderByChannel(ChannelHandlerContext ctx) {
-        for (String key : AuthenticatedClients.getInstance().clients.keySet()) {
-            if (AuthenticatedClients.getInstance().clients.get(key) == ctx.channel()) {
-                return key;
-            }
-        }
-
-        return null;
     }
 }

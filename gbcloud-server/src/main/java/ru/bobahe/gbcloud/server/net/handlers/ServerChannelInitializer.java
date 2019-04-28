@@ -36,7 +36,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     }
 
     @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
+    protected void initChannel(SocketChannel socketChannel) {
         ChannelPipeline pipeline = socketChannel.pipeline();
 
         if (sslContext != null) {

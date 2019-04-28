@@ -1,15 +1,15 @@
 package ru.bobahe.gbcloud.server.net.handlers;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.java.Log;
 import ru.bobahe.gbcloud.common.Command;
-import ru.bobahe.gbcloud.server.AuthenticatedClients;
 import ru.bobahe.gbcloud.server.CommandRunner;
 
 @Log
 public class MessageHandler extends ChannelInboundHandlerAdapter {
+    private CommandRunner commandRunner = new CommandRunner();
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         log.info("New client connected [" + ctx.channel().remoteAddress() + "]");
@@ -18,9 +18,10 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Command) {
-            CommandRunner.getInstance().invoke((Command) msg, ctx);
+            commandRunner.invoke((Command) msg, ctx);
         } else {
-            if (isAuthenticatedClient(ctx.channel())) {
+            if (commandRunner.isAuthenticated()) {
+                ctx.pipeline().get(FileChunkHandler.class).setCommandRunner(commandRunner);
                 ctx.fireChannelRead(msg);
             }
         }
@@ -35,9 +36,5 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
-
-    private boolean isAuthenticatedClient(Channel channel) {
-        return AuthenticatedClients.getInstance().clients.containsValue(channel);
     }
 }
