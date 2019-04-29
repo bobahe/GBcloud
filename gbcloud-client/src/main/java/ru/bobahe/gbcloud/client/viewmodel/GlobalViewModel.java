@@ -108,6 +108,7 @@ public class GlobalViewModel {
             return;
         }
 
+        // todo ОБЯЗАТЕЛЬНО переделать представление файла так, чтобы проверять boolean, а не строку!!!!!
         if (selectedItem.getIsFolder().equals("папка")) {
             if (selectedItem.getName().equals("..")) {
                 int lastIndex = path.get().length() - 2;
