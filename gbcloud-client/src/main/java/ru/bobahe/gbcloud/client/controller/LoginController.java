@@ -1,5 +1,6 @@
 package ru.bobahe.gbcloud.client.controller;
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
@@ -71,6 +72,7 @@ public class LoginController implements Initializable {
     private void showFileManager() {
         try {
             ((Stage) root.getScene().getWindow()).close();
+            System.out.println(root.getScene().getWindow());
 
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
@@ -80,6 +82,7 @@ public class LoginController implements Initializable {
             stage.setTitle("GBCloud client");
             stage.setScene(new Scene(root, 1024, 768));
             stage.showAndWait();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

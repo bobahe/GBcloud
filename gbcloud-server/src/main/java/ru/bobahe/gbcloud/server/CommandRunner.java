@@ -214,7 +214,7 @@ public class CommandRunner implements Invokable {
 
         sendMessage(Action.AUTH, "OK", ctx);
 
-        sendList(".", ctx);
+        sendList(File.separator, ctx);
     }
 
     private void sendMessage(Action action, String message, ChannelHandlerContext ctx) {

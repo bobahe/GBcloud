@@ -48,10 +48,10 @@ public class GlobalViewModel {
     private ObservableList<Filec> serverFilesList = FXCollections.observableArrayList();
 
     @Getter
-    private StringProperty serverPath = new SimpleStringProperty("/");
+    private StringProperty serverPath = new SimpleStringProperty(File.separator);
 
     @Getter
-    private StringProperty clientPath = new SimpleStringProperty("/");
+    private StringProperty clientPath = new SimpleStringProperty(File.separator);
 
     @Getter
     private StringProperty messageFromServer = new SimpleStringProperty();
@@ -151,7 +151,7 @@ public class GlobalViewModel {
                     if (selectedItem.getIsFolder().equals("папка")) {
                         dstPath = to.get() + p.toString().substring(
                                 p.toString().indexOf(selectedItem.getName()),
-                                p.toString().lastIndexOf("/") + 1
+                                p.toString().lastIndexOf(File.separator) + 1
                         );
                     }
 

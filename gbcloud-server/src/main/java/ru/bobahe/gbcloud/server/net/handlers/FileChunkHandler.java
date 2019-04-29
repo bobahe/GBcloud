@@ -28,7 +28,7 @@ public class FileChunkHandler extends ChannelInboundHandlerAdapter {
 
             if (fileChunk.getDestinationFilePath() != null) {
                 preparedPath = Paths.get(fileChunk.getDestinationFilePath()
-                        + fileChunk.getFilePath().substring(fileChunk.getFilePath().lastIndexOf(File.separator)));
+                        + fileChunk.getFilePath().substring(fileChunk.getFilePath().lastIndexOf(File.separator) + 1));
             }
 
             if (fileChunk.getLength() != -1) {
