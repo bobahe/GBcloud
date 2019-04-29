@@ -73,12 +73,12 @@
                         <ContextMenu fx:id="clientFilesMenu">
                             <items>
                                 <MenuItem text="Копировать на сервер" styleClass="copy-to-menu-item"
-                                          onAction="#copyMenuItemClicked"/>
+                                          onAction="#copyMenuItemClicked" accelerator="F5"/>
                                 <MenuItem text="Удалить" styleClass="delete-menu-item"
-                                          onAction="#deleteMenuItemClicked"/>
+                                          onAction="#deleteMenuItemClicked" accelerator="F8"/>
                                 <SeparatorMenuItem/>
                                 <MenuItem text="Новая папка" styleClass="new-folder-menu-item"
-                                          onAction="#newDirectoryMenuItemClicked"/>
+                                          onAction="#newDirectoryMenuItemClicked" accelerator="F7"/>
                             </items>
                         </ContextMenu>
                     </contextMenu>

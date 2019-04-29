@@ -31,3 +31,10 @@
 .copy-from-menu-item > .label {
     -fx-graphic: url("../img/left-arrow.png");
 }
+
+.new-folder-menu-item .accelerator-text,
+.delete-menu-item .accelerator-text,
+.copy-to-menu-item .accelerator-text,
+.copy-from-menu-item .accelerator-text {
+    -fx-graphic: none;
+}
