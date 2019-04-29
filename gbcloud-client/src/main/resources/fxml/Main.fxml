@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.control.ContextMenu?>
-<?import com.sun.javafx.scene.control.skin.ContextMenuContent.MenuBox?>
-<?import com.sun.javafx.scene.control.skin.ContextMenuContent.ArrowMenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Insets?>
 <StackPane prefHeight="1024" prefWidth="768"
            style="-fx-background-color: transparent;"
            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.112-ea"
@@ -19,22 +13,22 @@
 
     <VBox styleClass="main-vbox">
         <!--        style="-fx-background-color: #eee; -fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 20;">-->
-        <HBox>
-            <MenuBar styleClass="menu-bar" HBox.hgrow="ALWAYS">
-                <Menu styleClass="menu" text="Network">
-                    <MenuItem styleClass="menu-item" text="Connect"/>
-                </Menu>
-            </MenuBar>
-            <VBox styleClass="connected-vbox" alignment="CENTER">
-                <Circle fx:id="connected" radius="10" fill="red"/>
-            </VBox>
-        </HBox>
+        <!--        <HBox>-->
+        <!--            <MenuBar styleClass="menu-bar" HBox.hgrow="ALWAYS">-->
+        <!--                <Menu styleClass="menu" text="Network">-->
+        <!--                    <MenuItem styleClass="menu-item" text="Connect"/>-->
+        <!--                </Menu>-->
+        <!--            </MenuBar>-->
+        <!--            <VBox styleClass="connected-vbox" alignment="CENTER">-->
+        <!--                <Circle fx:id="connected" radius="10" fill="red"/>-->
+        <!--            </VBox>-->
+        <!--        </HBox>-->
 
         <AnchorPane fx:id="anchorPane" VBox.vgrow="ALWAYS">
             <GridPane fx:id="clientGridPane" hgap="2"
                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                      style="-fx-background-color: #ccc;">
+                      style="-fx-background-color: #90b539;">
 
                 <columnConstraints>
                     <ColumnConstraints percentWidth="25"/>
@@ -44,13 +38,32 @@
                 </columnConstraints>
                 <rowConstraints>
                     <RowConstraints percentHeight="5"/>
-                    <RowConstraints percentHeight="95"/>
+                    <RowConstraints percentHeight="5"/>
+                    <RowConstraints percentHeight="90"/>
                 </rowConstraints>
 
+                <Label GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.halignment="CENTER"
+                       text="Локальное хранилище" styleClass="header-text"/>
+                <ImageView GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                    <Image url="@../img/house.png"/>
+                    <GridPane.margin>
+                        <Insets right="15"/>
+                    </GridPane.margin>
+                </ImageView>
+                <Label GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS"
+                       GridPane.halignment="CENTER"
+                       text="Облачное хранилище" alignment="CENTER" styleClass="header-text"/>
+                <ImageView GridPane.columnIndex="3" GridPane.halignment="RIGHT">
+                    <Image url="@../img/target-mark.png"/>
+                    <GridPane.margin>
+                        <Insets right="15"/>
+                    </GridPane.margin>
+                </ImageView>
+
                 <!--            prefWidth="${clientHBox.parent.width}"-->
-                <Label fx:id="lblClientPath" GridPane.columnIndex="0" style="-fx-padding: 4"/>
-                <Label fx:id="lblServerPath" GridPane.columnIndex="2" style="-fx-padding: 4"/>
-                <TableView fx:id="clientFilesTable" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                <Label fx:id="lblClientPath" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-padding: 4"/>
+                <Label fx:id="lblServerPath" GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-padding: 4"/>
+                <TableView fx:id="clientFilesTable" GridPane.columnIndex="0" GridPane.rowIndex="2"
                            GridPane.columnSpan="2" editable="true"
                            onMouseClicked="#clientFilesTableClick" onKeyReleased="#clientFilesTableKeyPressed">
                     <placeholder>
@@ -59,15 +72,18 @@
                     <contextMenu>
                         <ContextMenu fx:id="clientFilesMenu">
                             <items>
-                                <MenuItem text="Копировать на сервер" onAction="#copyMenuItemClicked"/>
-                                <MenuItem text="Удалить" onAction="#deleteMenuItemClicked"/>
+                                <MenuItem text="Копировать на сервер" styleClass="copy-to-menu-item"
+                                          onAction="#copyMenuItemClicked"/>
+                                <MenuItem text="Удалить" styleClass="delete-menu-item"
+                                          onAction="#deleteMenuItemClicked"/>
                                 <SeparatorMenuItem/>
-                                <MenuItem text="Новая папка" onAction="#newDirectoryMenuItemClicked"/>
+                                <MenuItem text="Новая папка" styleClass="new-folder-menu-item"
+                                          onAction="#newDirectoryMenuItemClicked"/>
                             </items>
                         </ContextMenu>
                     </contextMenu>
                 </TableView>
-                <TableView fx:id="serverFilesTable" GridPane.columnIndex="2" GridPane.rowIndex="1"
+                <TableView fx:id="serverFilesTable" GridPane.columnIndex="2" GridPane.rowIndex="2"
                            GridPane.columnSpan="2"
                            onMouseClicked="#serverFilesTableClick" onKeyReleased="#serverFilesTableKeyPressed">
                     <placeholder>
@@ -76,12 +92,14 @@
                     <contextMenu>
                         <ContextMenu fx:id="serverFilesMenu">
                             <items>
-                                <MenuItem text="Копировать с сервера" onAction="#copyMenuItemClicked"
+                                <MenuItem text="Копировать с сервера" styleClass="copy-from-menu-item"
+                                          onAction="#copyMenuItemClicked"
                                           disable="true"/>
-                                <MenuItem text="Удалить" onAction="#deleteMenuItemClicked"
+                                <MenuItem text="Удалить" styleClass="delete-menu-item" onAction="#deleteMenuItemClicked"
                                           disable="true"/>
                                 <SeparatorMenuItem/>
-                                <MenuItem text="Новая папка" onAction="#newDirectoryMenuItemClicked"
+                                <MenuItem styleClass="new-folder-menu-item" text="Новая папка"
+                                          onAction="#newDirectoryMenuItemClicked"
                                           disable="true"/>
                             </items>
                         </ContextMenu>
