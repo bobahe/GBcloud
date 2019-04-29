@@ -6,42 +6,53 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <VBox fx:id="root" styleClass="root" xmlns="http://javafx.com/javafx/8.0.112-ea" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ru.bobahe.gbcloud.client.controller.LoginController"
+      fx:controller="ru.bobahe.gbcloud.client.controller.RegistrationController"
       stylesheets="@../css/LoginRegistrationWindow.css">
 
     <GridPane styleClass="header">
-        <Label styleClass="header-text" text="Вход"/>
-        <Label styleClass="header-description" text="Введите логин и пароль для входа:"
+        <Label styleClass="header-text" text="Регистрация"/>
+        <Label styleClass="header-description" text="Заполните форму для получения доступа:"
                GridPane.rowIndex="1"/>
         <ImageView GridPane.columnIndex="1" GridPane.rowSpan="2" GridPane.hgrow="ALWAYS" GridPane.halignment="RIGHT">
-            <Image url="@../img/key.png"/>
+            <Image url="@../img/man.png"/>
         </ImageView>
     </GridPane>
 
     <VBox styleClass="form">
-        <TextField fx:id="login" promptText="Логин">
+        <TextField fx:id="name" promptText="Имя">
+            <VBox.margin>
+                <Insets top="10"/>
+            </VBox.margin>
+        </TextField>
+        <TextField fx:id="login" promptText="Логин" onAction="#register">
             <VBox.margin>
                 <Insets top="10"/>
             </VBox.margin>
         </TextField>
         <Label fx:id="loginError" styleClass="error-text"/>
-        <PasswordField fx:id="password" promptText="Пароль" onAction="#authenticate">
+        <PasswordField fx:id="password" promptText="Пароль" onAction="#register">
             <VBox.margin>
                 <Insets top="10"/>
             </VBox.margin>
         </PasswordField>
         <Label fx:id="passwordError" styleClass="error-text"/>
-        <Button text="Войти" onAction="#authenticate">
+        <PasswordField fx:id="duplicate" promptText="Пароль" onAction="#register">
+            <VBox.margin>
+                <Insets top="10"/>
+            </VBox.margin>
+        </PasswordField>
+        <Label fx:id="duplicateError" styleClass="error-text"/>
+        <Button text="Зарегистрироваться" onAction="#register">
             <VBox.margin>
                 <Insets top="10"/>
             </VBox.margin>
         </Button>
     </VBox>
 
-    <HBox alignment="CENTER_RIGHT">
-        <Hyperlink text="Зарегистрироваться" onAction="#registrationClicked"/>
+    <HBox alignment="CENTER_LEFT">
+        <Hyperlink text="Войти" onAction="#loginClicked"/>
         <VBox.margin>
-            <Insets right="15" bottom="15"/>
+            <Insets left="15" bottom="15"/>
         </VBox.margin>
     </HBox>
 </VBox>

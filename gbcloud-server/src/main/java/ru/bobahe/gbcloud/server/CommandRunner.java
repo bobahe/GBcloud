@@ -123,9 +123,9 @@ public class CommandRunner implements Invokable {
                                     uuidFolderName)
             );
 
-            sendMessage(Action.SUCCESS, "Вы успешно зарегистрированы.", ctx);
+            sendMessage(Action.REGISTER, "OK. Вы успешно зарегистрированы.", ctx);
         } catch (Exception e) {
-            sendMessage(Action.ERROR, e.getMessage(), ctx);
+            sendMessage(Action.REGISTER, e.getMessage(), ctx);
         }
     }
 
@@ -194,18 +194,18 @@ public class CommandRunner implements Invokable {
                     new String(MessageDigest.getInstance("MD5").digest(password.getBytes()))
             );
         } catch (Exception e) {
-            sendMessage(Action.ERROR, e.getMessage(), ctx);
+            sendMessage(Action.AUTH, e.getMessage(), ctx);
         }
 
         if (folder == null) {
-            sendMessage(Action.ERROR, "Неверные логин и/или пароль.", ctx);
+            sendMessage(Action.AUTH, "Неверные логин и/или пароль.", ctx);
             return;
         }
 
         clientFolder = ApplicationProperties.getInstance().getProperty("root.directory") + File.separator + folder;
 
         if (!new FileWorker().checkFolders(Paths.get(clientFolder))) {
-            sendMessage(Action.ERROR, "На сервере отсутствует Ваша папка. Обратитесь к системному администратору.", ctx);
+            sendMessage(Action.AUTH, "На сервере отсутствует Ваша папка. Обратитесь к системному администратору.", ctx);
             ctx.close();
             return;
         }

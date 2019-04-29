@@ -8,7 +8,6 @@ import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 import ru.bobahe.gbcloud.common.FileChunk;
 import ru.bobahe.gbcloud.common.command.Action;
 import ru.bobahe.gbcloud.common.command.Command;
-import ru.bobahe.gbcloud.common.command.parameters.CredentialParameters;
 import ru.bobahe.gbcloud.common.command.parameters.DescriptionParameters;
 import ru.bobahe.gbcloud.common.command.parameters.FileParameters;
 import ru.bobahe.gbcloud.common.command.parameters.ListParameters;
@@ -17,28 +16,12 @@ import java.io.File;
 import java.io.IOException;
 
 public class MessageHandler extends ChannelInboundHandlerAdapter {
-    private Command responseCommand;
     private static final FileChunk fileChunk = new FileChunk();
-
     private GlobalViewModel model = GlobalViewModel.getInstance();
-
-    public MessageHandler() {
-
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-//        responseCommand = Command.builder()
-//                .action(Action.REGISTER)
-//                .parameters(new CredentialParameters("user", "password"))
-//                .build();
-//        ctx.writeAndFlush(responseCommand);
-
-        responseCommand = Command.builder()
-                .action(Action.AUTH)
-                .parameters(new CredentialParameters("user", "password"))
-                .build();
-        ctx.writeAndFlush(responseCommand);
+        model.getIsConnected().set(true);
     }
 
     @Override
@@ -68,7 +51,21 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                     if (description == null) {
                         return;
                     }
-                    model.getIsAuthenticated().set(description.getDescription().equals("OK"));
+                    if (description.getDescription().equals("OK")) {
+                        model.getIsAuthenticated().set(true);
+                    }
+
+                    model.getMessageFromServerType().set(1);
+                    model.getMessageFromServer().set(description.getDescription());
+                    break;
+                case REGISTER:
+                    if (description == null) {
+                        return;
+                    }
+                    if (description.getDescription().startsWith("OK")) {
+                        model.getMessageFromServerType().set(0);
+                    }
+                    model.getMessageFromServer().set(description.getDescription());
                     break;
                 case LIST:
                     if (receivedCommand.getParameters() instanceof ListParameters) {

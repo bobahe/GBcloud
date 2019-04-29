@@ -31,6 +31,7 @@ class Server {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+                    //.handler(new LoggingHandler(LogLevel.WARN))
                     .childHandler(new ServerChannelInitializer());
 
             b.bind(port).sync().channel().closeFuture().sync();

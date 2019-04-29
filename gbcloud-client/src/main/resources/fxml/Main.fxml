@@ -22,7 +22,7 @@
         <HBox>
             <MenuBar styleClass="menu-bar" HBox.hgrow="ALWAYS">
                 <Menu styleClass="menu" text="Network">
-                    <MenuItem styleClass="menu-item" text="Connect" onAction="#menuConnectAction"/>
+                    <MenuItem styleClass="menu-item" text="Connect"/>
                 </Menu>
             </MenuBar>
             <VBox styleClass="connected-vbox" alignment="CENTER">

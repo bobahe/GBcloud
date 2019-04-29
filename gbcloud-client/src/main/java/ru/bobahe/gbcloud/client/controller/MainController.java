@@ -21,7 +21,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.viewmodel.Filec;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
@@ -31,8 +30,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
-    private static final Client client = new Client();
-    private GlobalViewModel model = GlobalViewModel.getInstance().setClient(client);
+    private GlobalViewModel model = GlobalViewModel.getInstance();
     private ObservableList<Filec> clientFilesList = model.getClientFilesList();
     private ObservableList<Filec> serverFilesList = model.getServerFilesList();
     private StringProperty serverPath = model.getServerPath();
@@ -153,18 +151,6 @@ public class MainController implements Initializable {
                 }
                 break;
         }
-    }
-
-    public void menuConnectAction(ActionEvent actionEvent) {
-        new Thread(() -> {
-            try {
-                if (client.getChannel() == null) {
-                    client.connect();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
     }
 
     public void serverFilesTableClick(MouseEvent mouseEvent) {

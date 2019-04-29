@@ -1,11 +1,13 @@
 package ru.bobahe.gbcloud.client;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
 
 import java.io.IOException;
@@ -30,14 +32,15 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
         Parent root = fxmlLoader.load();
         //primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setTitle("GBCloud client");
-        Scene scene = new Scene(root, 1024, 768);
+        Scene scene = new Scene(root);
         scene.setFill(Color.TRANSPARENT);
 
         primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 }

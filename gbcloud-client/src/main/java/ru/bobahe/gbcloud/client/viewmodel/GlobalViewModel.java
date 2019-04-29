@@ -1,5 +1,6 @@
 package ru.bobahe.gbcloud.client.viewmodel;
 
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,7 +10,9 @@ import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
 import ru.bobahe.gbcloud.common.command.Action;
 import ru.bobahe.gbcloud.common.command.Command;
+import ru.bobahe.gbcloud.common.command.parameters.CredentialParameters;
 import ru.bobahe.gbcloud.common.command.parameters.FileParameters;
+import ru.bobahe.gbcloud.common.command.parameters.ListParameters;
 import ru.bobahe.gbcloud.common.fs.FileWorker;
 
 import java.io.File;
@@ -30,9 +33,13 @@ public class GlobalViewModel {
     }
     // endregion
 
+    @Getter
     private Client client;
     private Command responseCommand;
     private FileWorker fileWorker = new FileWorker();
+
+    @Getter
+    private BooleanProperty isConnected = new SimpleBooleanProperty(false);
 
     @Getter
     private ObservableList<Filec> clientFilesList = FXCollections.observableArrayList();
@@ -41,10 +48,10 @@ public class GlobalViewModel {
     private ObservableList<Filec> serverFilesList = FXCollections.observableArrayList();
 
     @Getter
-    private StringProperty serverPath = new SimpleStringProperty();
+    private StringProperty serverPath = new SimpleStringProperty("/");
 
     @Getter
-    private StringProperty clientPath = new SimpleStringProperty();
+    private StringProperty clientPath = new SimpleStringProperty("/");
 
     @Getter
     private StringProperty messageFromServer = new SimpleStringProperty();
@@ -58,6 +65,18 @@ public class GlobalViewModel {
     public GlobalViewModel setClient(Client client) {
         ourInstance.client = client;
         return ourInstance;
+    }
+
+    public void authenticate(String username, String password) {
+        if (client.getChannel() == null) {
+            return;
+        }
+
+        responseCommand = Command.builder()
+                .action(Action.AUTH)
+                .parameters(new CredentialParameters(username, password))
+                .build();
+        client.getChannel().writeAndFlush(responseCommand);
     }
 
     public void getClientFileList() {
@@ -77,7 +96,7 @@ public class GlobalViewModel {
     private void getServerFileList() {
         responseCommand = Command.builder()
                 .action(Action.LIST)
-                .parameters(new FileParameters(serverPath.get(), null))
+                .parameters(new ListParameters(serverPath.get(), null))
                 .build();
         client.getChannel().writeAndFlush(responseCommand);
     }
@@ -212,5 +231,17 @@ public class GlobalViewModel {
                     .build();
             client.getChannel().writeAndFlush(responseCommand);
         }
+    }
+
+    public void register(String username, String password) {
+        if (client.getChannel() == null) {
+            return;
+        }
+
+        responseCommand = Command.builder()
+                .action(Action.REGISTER)
+                .parameters(new CredentialParameters(username, password))
+                .build();
+        client.getChannel().writeAndFlush(responseCommand);
     }
 }

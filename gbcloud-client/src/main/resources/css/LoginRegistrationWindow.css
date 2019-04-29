@@ -1,0 +1,48 @@
+.root {
+    -fx-font-family: "Helvetica";
+    -fx-pref-width: 400;
+}
+
+.header {
+    -fx-background-color: #90b539;
+    -fx-padding: 15;
+    -fx-pref-width: 400;
+}
+
+.header-text {
+    -fx-font-size: 28;
+    -fx-font-weight: bolder;
+}
+
+.header-description {
+    -fx-font-size: 14;
+}
+
+.form {
+    -fx-padding: 15;
+    -fx-alignment: center;
+}
+
+.text-field, .password-field {
+    -fx-max-width: 250;
+}
+
+.error-text {
+    -fx-font-size: 12;
+    -fx-text-fill: red;
+    -fx-pref-width: 250;
+}
+
+.button {
+    -fx-background-color: #90b539;
+    -fx-pref-width: 250;
+    -fx-font-weight: bold;
+}
+
+.button:hover, .button:focused {
+    -fx-background-color: #a1c057;
+}
+
+.button:pressed {
+    -fx-background-color: #90b539;
+}
