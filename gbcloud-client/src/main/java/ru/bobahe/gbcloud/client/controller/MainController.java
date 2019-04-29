@@ -65,6 +65,8 @@ public class MainController implements Initializable {
 
         model.getClientFileList();
 
+        serverFilesMenu.getItems().forEach(mi -> mi.setDisable(!model.getIsConnected().get()));
+
         model.getMessageFromServer().addListener(this::messageFromServer);
         model.getIsAuthenticated().addListener(this::getAuthCommand);
     }

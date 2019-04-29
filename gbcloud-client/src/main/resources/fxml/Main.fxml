@@ -39,7 +39,7 @@
                 <rowConstraints>
                     <RowConstraints percentHeight="5"/>
                     <RowConstraints percentHeight="5"/>
-                    <RowConstraints percentHeight="90"/>
+                    <RowConstraints percentHeight="95"/>
                 </rowConstraints>
 
                 <Label GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.halignment="CENTER"
@@ -61,8 +61,10 @@
                 </ImageView>
 
                 <!--            prefWidth="${clientHBox.parent.width}"-->
-                <Label fx:id="lblClientPath" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-padding: 4"/>
-                <Label fx:id="lblServerPath" GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-padding: 4"/>
+                <Label fx:id="lblClientPath" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"
+                       style="-fx-padding: 4"/>
+                <Label fx:id="lblServerPath" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.columnSpan="2"
+                       style="-fx-padding: 4"/>
                 <TableView fx:id="clientFilesTable" GridPane.columnIndex="0" GridPane.rowIndex="2"
                            GridPane.columnSpan="2" editable="true"
                            onMouseClicked="#clientFilesTableClick" onKeyReleased="#clientFilesTableKeyPressed">
