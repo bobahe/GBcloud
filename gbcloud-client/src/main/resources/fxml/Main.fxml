@@ -5,7 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
-<StackPane prefHeight="1024" prefWidth="768"
+<StackPane fx:id="root" prefHeight="1024" prefWidth="768"
            style="-fx-background-color: transparent;"
            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.112-ea"
            fx:controller="ru.bobahe.gbcloud.client.controller.MainController"

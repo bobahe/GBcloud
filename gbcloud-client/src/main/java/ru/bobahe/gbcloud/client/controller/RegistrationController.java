@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
 import java.io.IOException;
@@ -38,9 +39,22 @@ public class RegistrationController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        onCloseRequest();
+
         login.textProperty().addListener(this::loginTextChanged);
         password.textProperty().addListener(this::passwordTextChanged);
         model.getMessageFromServer().addListener(this::showMessageFromServer);
+    }
+
+    private void onCloseRequest() {
+        Platform.runLater(() -> {
+            root.getScene().getWindow().setOnCloseRequest(event -> {
+                if (event.getEventType() == WindowEvent.WINDOW_CLOSE_REQUEST) {
+                    while(!GlobalViewModel.getInstance().getClient().close()) {}
+                    Platform.exit();
+                }
+            });
+        });
     }
 
     private void showMessageFromServer(Observable observable) {

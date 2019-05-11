@@ -17,10 +17,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import ru.bobahe.gbcloud.client.viewmodel.Filec;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
@@ -35,6 +37,9 @@ public class MainController implements Initializable {
     private ObservableList<Filec> serverFilesList = model.getServerFilesList();
     private StringProperty serverPath = model.getServerPath();
     private StringProperty clientPath = model.getClientPath();
+
+    @FXML
+    private StackPane root;
 
     @FXML
     private AnchorPane anchorPane;
@@ -56,6 +61,8 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        onCloseRequest();
+
         clientPath.setValue(File.separator);
         lblClientPath.textProperty().bind(clientPath);
         serverPath.setValue(File.separator);
@@ -69,6 +76,17 @@ public class MainController implements Initializable {
 
         model.getMessageFromServer().addListener(this::messageFromServer);
         model.getIsAuthenticated().addListener(this::getAuthCommand);
+    }
+
+    private void onCloseRequest() {
+        Platform.runLater(() -> {
+            root.getScene().getWindow().setOnCloseRequest(event -> {
+                if (event.getEventType() == WindowEvent.WINDOW_CLOSE_REQUEST) {
+                    while(!GlobalViewModel.getInstance().getClient().close()) {}
+                    Platform.exit();
+                }
+            });
+        });
     }
 
     private void getAuthCommand(Observable observable) {

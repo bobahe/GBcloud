@@ -1,6 +1,5 @@
 package ru.bobahe.gbcloud.client.controller;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
@@ -15,8 +14,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import lombok.extern.java.Log;
-import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
 import java.io.IOException;
@@ -37,23 +36,41 @@ public class LoginController implements Initializable {
     @FXML
     Label loginError, passwordError;
 
-    private static final Client client = new Client();
-    private GlobalViewModel model = GlobalViewModel.getInstance().setClient(client);
+    private GlobalViewModel model = GlobalViewModel.getInstance();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        onCloseRequest();
+        connect();
+
+        login.textProperty().addListener(this::loginTextChanged);
+        password.textProperty().addListener(this::passwordTextChanged);
+        model.getMessageFromServer().addListener(this::showMessageFromServer);
+    }
+
+    private void connect() {
         new Thread(() -> {
             try {
-                client.connect();
+                if (!model.getIsConnected().get()) {
+                    model.getClient().connect();
+                }
             } catch (Exception e) {
                 Platform.runLater(() -> passwordError.setText("Возникла ошибка при подключении"));
                 log.info(e.getMessage());
             }
         }).start();
+    }
 
-        login.textProperty().addListener(this::loginTextChanged);
-        password.textProperty().addListener(this::passwordTextChanged);
-        model.getMessageFromServer().addListener(this::showMessageFromServer);
+    private void onCloseRequest() {
+        Platform.runLater(() -> {
+            root.getScene().getWindow().setOnCloseRequest(event -> {
+                if (event.getEventType() == WindowEvent.WINDOW_CLOSE_REQUEST) {
+                    while (!model.getClient().close()) {
+                    }
+                    Platform.exit();
+                }
+            });
+        });
     }
 
     private void showMessageFromServer(Observable observable) {
@@ -70,22 +87,23 @@ public class LoginController implements Initializable {
     }
 
     private void showFileManager() {
-        try {
-            ((Stage) root.getScene().getWindow()).close();
-            System.out.println(root.getScene().getWindow());
+        Platform.runLater(() -> {
+            try {
+                if (this.root.getScene().getWindow() != null) {
+                    ((Stage) this.root.getScene().getWindow()).close();
+                }
 
-            Stage stage = new Stage();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
-            Parent root = loader.load();
-            //MainController controller = loader.getController();
+                Stage stage = new Stage();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
+                Parent root = loader.load();
 
-            stage.setTitle("GBCloud client");
-            stage.setScene(new Scene(root, 1024, 768));
-            stage.showAndWait();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                stage.setTitle("GBCloud client");
+                stage.setScene(new Scene(root, 1024, 768));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void passwordTextChanged(Observable observable) {

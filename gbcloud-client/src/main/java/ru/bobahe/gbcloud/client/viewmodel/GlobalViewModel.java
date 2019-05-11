@@ -34,7 +34,7 @@ public class GlobalViewModel {
     // endregion
 
     @Getter
-    private Client client;
+    private Client client = new Client();
     private Command responseCommand;
     private FileWorker fileWorker = new FileWorker();
 
@@ -61,11 +61,6 @@ public class GlobalViewModel {
 
     @Getter
     private BooleanProperty isAuthenticated = new SimpleBooleanProperty(false);
-
-    public GlobalViewModel setClient(Client client) {
-        ourInstance.client = client;
-        return ourInstance;
-    }
 
     public void authenticate(String username, String password) {
         if (client.getChannel() == null) {
