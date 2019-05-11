@@ -141,6 +141,13 @@ public class GlobalViewModel {
 
         try {
             Files.walk(Paths.get(sourcePath)).forEach(p -> {
+                if (Files.isDirectory(p)) {
+                    try {
+                        createDirectory(false, serverPath.get() + p.subpath(1, p.getNameCount()).toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 if (!Files.isDirectory(p)) {
                     String dstPath = to.get();
 
