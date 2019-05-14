@@ -12,7 +12,7 @@ import ru.bobahe.gbcloud.common.command.Command;
 import ru.bobahe.gbcloud.common.command.parameters.CredentialParameters;
 import ru.bobahe.gbcloud.common.command.parameters.FileParameters;
 import ru.bobahe.gbcloud.common.command.parameters.ListParameters;
-import ru.bobahe.gbcloud.common.fs.FileWorker;
+import ru.bobahe.gbcloud.common.fs.FSUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,6 @@ public class GlobalViewModel {
     @Getter
     private Client client = new Client();
     private Command responseCommand;
-    private FileWorker fileWorker = new FileWorker();
 
     @Getter
     private BooleanProperty isConnected = new SimpleBooleanProperty(false);
@@ -78,7 +77,7 @@ public class GlobalViewModel {
             if (!clientPath.get().equals(File.separator)) {
                 clientFilesList.add(FileInfo.builder().name("..").isFolder("папка").build());
             }
-            Map<String, Boolean> fileList = new FileWorker().getFileList(
+            Map<String, Boolean> fileList = FSUtils.getFileList(
                     ApplicationProperties.getInstance().getProperty("root.directory") +
                             clientPath.get());
             fileList.forEach((n, f) -> clientFilesList.add(FileInfo.builder().name(n).isFolder(f ? "папка" : "").build()));
@@ -200,7 +199,7 @@ public class GlobalViewModel {
                             clientPath.get() +
                             selecteItem.getName()
             );
-            fileWorker.delete(pathToDelete);
+            FSUtils.delete(pathToDelete);
             clientFilesList.clear();
             getClientFileList();
         } else {
@@ -218,7 +217,7 @@ public class GlobalViewModel {
 
     public void createDirectory(boolean isClient, String path) throws Exception {
         if (isClient) {
-            fileWorker.createDirectory(Paths.get(
+            FSUtils.createDirectory(Paths.get(
                     ApplicationProperties.getInstance().getProperty("root.directory") + path));
             clientFilesList.clear();
             getClientFileList();

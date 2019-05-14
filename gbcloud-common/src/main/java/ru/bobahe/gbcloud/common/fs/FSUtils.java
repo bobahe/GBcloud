@@ -9,8 +9,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FileWorker {
-    public int readFileChunk(Path path, byte[] data, long offset) throws IOException {
+public class FSUtils {
+    public static int readFileChunk(Path path, byte[] data, long offset) throws IOException {
         int length;
 
         RandomAccessFile raf = new RandomAccessFile(path.toString(), "r");
@@ -21,7 +21,7 @@ public class FileWorker {
         return length;
     }
 
-    public void writeFileChunk(Path path, byte[] data, long offset, int length) {
+    public static void writeFileChunk(Path path, byte[] data, long offset, int length) {
         if (path.getNameCount() > 1) {
             Path directory = path.subpath(0, path.getNameCount() - 1);
 
@@ -41,7 +41,7 @@ public class FileWorker {
         }
     }
 
-    public Map<String, Boolean> getFileList(String path) throws IOException {
+    public static Map<String, Boolean> getFileList(String path) throws IOException {
         Map<String, Boolean> result = new HashMap<>();
         Path pathToWalk = Paths.get(path);
 
@@ -66,7 +66,7 @@ public class FileWorker {
         return result;
     }
 
-    public boolean delete(Path path) throws IOException {
+    public static boolean delete(Path path) throws IOException {
 
         // Пишут, что плохо использовать лямбду и при этом изменять что-то извне.
         // Рекомендуют использовать обычный цикл. А коли сильно хочется, то обертку типа Atomic.
@@ -90,11 +90,11 @@ public class FileWorker {
         return isDeleteFalse;
     }
 
-    public boolean checkFolders(Path... paths) {
+    public static boolean checkFolders(Path... paths) {
         return Arrays.stream(paths).allMatch(p -> Files.isDirectory(p));
     }
 
-    public void createDirectory(Path path) throws IOException {
+    public static void createDirectory(Path path) throws IOException {
         Files.createDirectories(path);
     }
 }

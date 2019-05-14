@@ -4,9 +4,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
-import ru.bobahe.gbcloud.common.fs.FileWorker;
+import ru.bobahe.gbcloud.common.fs.FSUtils;
 import ru.bobahe.gbcloud.server.db.SQLHandler;
 import ru.bobahe.gbcloud.server.net.handlers.ServerChannelInitializer;
 import ru.bobahe.gbcloud.server.properties.ApplicationProperties;
@@ -44,7 +42,7 @@ class Server {
     }
 
     private boolean checkRootFolder() {
-        return new FileWorker().checkFolders(
+        return FSUtils.checkFolders(
                 Paths.get(ApplicationProperties.getInstance().getProperty("root.directory"))
         );
     }

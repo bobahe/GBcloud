@@ -5,7 +5,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import ru.bobahe.gbcloud.common.FileChunk;
-import ru.bobahe.gbcloud.common.fs.FileWorker;
+import ru.bobahe.gbcloud.common.fs.FSUtils;
 import ru.bobahe.gbcloud.server.CommandRunner;
 
 import java.io.File;
@@ -14,8 +14,6 @@ import java.nio.file.Paths;
 
 @Log
 public class FileChunkHandler extends ChannelInboundHandlerAdapter {
-    private static final FileWorker fileWorker = new FileWorker();
-
     @Setter
     private CommandRunner commandRunner;
 
@@ -32,7 +30,7 @@ public class FileChunkHandler extends ChannelInboundHandlerAdapter {
             }
 
             if (fileChunk.getLength() != -1) {
-                fileWorker.writeFileChunk(
+                FSUtils.writeFileChunk(
                         Paths.get(commandRunner.getClientFolder() + File.separator + preparedPath.toString()),
                         fileChunk.getData(),
                         fileChunk.getOffset(),

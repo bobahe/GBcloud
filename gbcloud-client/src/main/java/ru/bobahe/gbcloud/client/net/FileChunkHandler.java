@@ -5,15 +5,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 import ru.bobahe.gbcloud.common.FileChunk;
-import ru.bobahe.gbcloud.common.fs.FileWorker;
+import ru.bobahe.gbcloud.common.fs.FSUtils;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileChunkHandler extends ChannelInboundHandlerAdapter {
-    private static final FileWorker fileWorker = new FileWorker();
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof FileChunk) {
@@ -27,7 +25,7 @@ public class FileChunkHandler extends ChannelInboundHandlerAdapter {
             }
 
             if (fileChunk.getLength() != -1) {
-                fileWorker.writeFileChunk(
+                FSUtils.writeFileChunk(
                         Paths.get(buildLocalPath(ctx) + preparedPath.toString()),
                         fileChunk.getData(),
                         fileChunk.getOffset(),

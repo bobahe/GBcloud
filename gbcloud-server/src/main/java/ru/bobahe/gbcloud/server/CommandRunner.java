@@ -11,7 +11,7 @@ import ru.bobahe.gbcloud.common.command.parameters.CredentialParameters;
 import ru.bobahe.gbcloud.common.command.parameters.DescriptionParameters;
 import ru.bobahe.gbcloud.common.command.parameters.FileParameters;
 import ru.bobahe.gbcloud.common.command.parameters.ListParameters;
-import ru.bobahe.gbcloud.common.fs.FileWorker;
+import ru.bobahe.gbcloud.common.fs.FSUtils;
 import ru.bobahe.gbcloud.server.auth.AuthService;
 import ru.bobahe.gbcloud.server.auth.SQLAuthService;
 import ru.bobahe.gbcloud.server.properties.ApplicationProperties;
@@ -29,7 +29,6 @@ public class CommandRunner implements Invokable {
     private Command responseCommand;
     private static final AuthService authService = new SQLAuthService();
     private final FileChunk fileChunk = new FileChunk();
-    private static FileWorker fileWorker = new FileWorker();
 
     @Getter
     private String lastRequestedPathForListing;
@@ -97,7 +96,7 @@ public class CommandRunner implements Invokable {
 
     private void createDirectory(String path, ChannelHandlerContext ctx) {
         try {
-            fileWorker.createDirectory(Paths.get(clientFolder + path));
+            FSUtils.createDirectory(Paths.get(clientFolder + path));
             sendList(lastRequestedPathForListing, ctx);
         } catch (IOException e) {
             sendMessage(Action.ERROR, "Не удалось создать папку.", ctx);
@@ -116,7 +115,7 @@ public class CommandRunner implements Invokable {
             authService.insertNewUser(username, hashedPassword, uuidFolderName);
 
 
-            fileWorker.createDirectory(
+            FSUtils.createDirectory(
                     Paths.get(
                             ApplicationProperties.getInstance().getProperty("root.directory") +
                                     File.separator +
@@ -131,7 +130,7 @@ public class CommandRunner implements Invokable {
 
     private void delete(String path, ChannelHandlerContext ctx) {
         try {
-            boolean deleteFlag = fileWorker.delete(Paths.get(clientFolder + File.separator + path));
+            boolean deleteFlag = FSUtils.delete(Paths.get(clientFolder + File.separator + path));
 
             if (!deleteFlag) {
                 return;
@@ -149,7 +148,7 @@ public class CommandRunner implements Invokable {
         lastRequestedPathForListing = path;
 
         try {
-            Map<String, Boolean> list = fileWorker.getFileList(clientFolder + File.separator + path);
+            Map<String, Boolean> list = FSUtils.getFileList(clientFolder + File.separator + path);
 
             responseCommand = Command.builder().action(Action.LIST).parameters(new ListParameters(path, list)).build();
             ctx.writeAndFlush(responseCommand);
@@ -212,7 +211,7 @@ public class CommandRunner implements Invokable {
 
         clientFolder = ApplicationProperties.getInstance().getProperty("root.directory") + File.separator + folder;
 
-        if (!new FileWorker().checkFolders(Paths.get(clientFolder))) {
+        if (!FSUtils.checkFolders(Paths.get(clientFolder))) {
             sendMessage(Action.AUTH, "На сервере отсутствует Ваша папка. Обратитесь к системному администратору.", ctx);
             ctx.close();
             return;

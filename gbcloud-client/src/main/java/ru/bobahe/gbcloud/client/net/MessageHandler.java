@@ -11,14 +11,14 @@ import ru.bobahe.gbcloud.common.command.Command;
 import ru.bobahe.gbcloud.common.command.parameters.DescriptionParameters;
 import ru.bobahe.gbcloud.common.command.parameters.FileParameters;
 import ru.bobahe.gbcloud.common.command.parameters.ListParameters;
-import ru.bobahe.gbcloud.common.fs.FileWorker;
+import ru.bobahe.gbcloud.common.fs.FSUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
 public class MessageHandler extends ChannelInboundHandlerAdapter {
-    private static final FileChunk fileChunk = new FileChunk();
+    private final FileChunk fileChunk = new FileChunk();
     private GlobalViewModel model = GlobalViewModel.getInstance();
 
     @Override
@@ -108,7 +108,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                     if (receivedCommand.getParameters() instanceof FileParameters) {
                         FileParameters params = ((FileParameters) receivedCommand.getParameters());
                         try {
-                            new FileWorker().createDirectory(Paths.get(
+                            FSUtils.createDirectory(Paths.get(
                                     ApplicationProperties.getInstance().getProperty("root.directory") +
                                             params.getPath()
                             ));
