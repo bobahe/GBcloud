@@ -19,6 +19,7 @@ import ru.bobahe.gbcloud.server.properties.ApplicationProperties;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class CommandRunner implements Invokable {
             case DOWNLOAD:
                 if (command.getParameters() instanceof FileParameters) {
                     FileParameters params = ((FileParameters) command.getParameters());
-                    sendFile(params.getPath(), params.getDestinationPath(), ctx);
+                    performFileCopying(params.getPath(), params.getDestinationPath(), ctx);
                 }
                 break;
             case LIST:
@@ -157,38 +158,40 @@ public class CommandRunner implements Invokable {
         }
     }
 
-    private void sendFile(String path, String destinationPath, ChannelHandlerContext ctx) {
+    private void performFileCopying(String path, String destinationPath, ChannelHandlerContext ctx) {
         String pathFromCopy = clientFolder + path;
         String fileName = path.substring(path.lastIndexOf(File.separator));
 
         try {
-            Files.walk(Paths.get(pathFromCopy)).forEach(p -> {
-                if (Files.isDirectory(p)) {
-                    String dirPath = destinationPath + p.subpath(2, p.getNameCount()).toString();
-                    responseCommand = Command.builder()
-                            .action(Action.CREATE)
-                            .parameters(new FileParameters(dirPath, null))
-                            .build();
-                    ctx.writeAndFlush(responseCommand);
-                }
-                if (!Files.isDirectory(p)) {
-                    String dstPath = destinationPath +
-                            p.toString().substring(p.toString().indexOf(fileName), p.toString().lastIndexOf(File.separator));
-
-                    fileChunk.setFilePath(p.toString());
-                    fileChunk.setDestinationFilePath(dstPath);
-
-                    try {
-                        while (fileChunk.getNextChunk()) {
-                            ctx.writeAndFlush(fileChunk);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            Files.walk(Paths.get(pathFromCopy)).forEach(p -> sendFile(p, fileName, destinationPath, ctx));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void sendFile(Path p, String fileName, String destinationPath, ChannelHandlerContext ctx) {
+        if (Files.isDirectory(p)) {
+            String dirPath = destinationPath + p.subpath(2, p.getNameCount()).toString();
+            responseCommand = Command.builder()
+                    .action(Action.CREATE)
+                    .parameters(new FileParameters(dirPath, null))
+                    .build();
+            ctx.writeAndFlush(responseCommand);
+        } else {
+            int filenameIndex = p.toString().indexOf(fileName);
+            int lastIndexOfSeparator = p.toString().lastIndexOf(File.separator);
+            String dstPath = destinationPath + p.toString().substring(filenameIndex, lastIndexOfSeparator);
+
+            fileChunk.setFilePath(p.toString());
+            fileChunk.setDestinationFilePath(dstPath);
+
+            try {
+                while (fileChunk.getNextChunk()) {
+                    ctx.writeAndFlush(fileChunk);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
