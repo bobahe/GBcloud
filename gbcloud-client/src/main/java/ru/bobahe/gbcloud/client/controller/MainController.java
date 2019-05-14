@@ -4,11 +4,12 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -18,10 +19,13 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.WindowEvent;
 import ru.bobahe.gbcloud.client.guiutils.GuiUtils;
+import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
 import ru.bobahe.gbcloud.client.viewmodel.FileInfo;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -113,14 +117,37 @@ public class MainController implements Initializable {
 
     public void clientFilesTableClick(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() > 1) {
-            model.changeDir(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, true);
+            openFile(clientFilesTable.getSelectionModel().getSelectedItem());
+        }
+    }
+
+    private void openFile(FileInfo selectedItem) {
+        if (selectedItem == null) {
+            return;
+        }
+
+        String isFolder = selectedItem.getIsFolder();
+        if (isFolder.equals("папка") || isFolder.equals("..")) {
+            model.changeDir(selectedItem, clientPath, true);
+            return;
+        }
+        try {
+            Desktop.getDesktop().open(
+                    new File(
+                            ApplicationProperties.getInstance().getProperty("root.directory") +
+                                    model.getClientPath().get() +
+                                    selectedItem.getName()
+                    )
+            );
+        } catch (IOException e) {
+            GuiUtils.showAlert(Alert.AlertType.ERROR, "Ошибка", "Возникла ошибка при открытии файла", e.getMessage());
         }
     }
 
     public void clientFilesTableKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
             case ENTER:
-                model.changeDir(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, true);
+                openFile(clientFilesTable.getSelectionModel().getSelectedItem());
                 break;
             case F5:
                 performCopyingToServer();
