@@ -6,23 +6,17 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FileWorker {
-    private long offset;
-    private boolean isDeleteFalse;
-
-    public int readFileChunk(Path path, byte[] data) throws IOException {
+    public int readFileChunk(Path path, byte[] data, long offset) throws IOException {
         int length;
 
         RandomAccessFile raf = new RandomAccessFile(path.toString(), "r");
         raf.seek(offset);
         length = raf.read(data);
         raf.close();
-        offset += data.length;
 
         return length;
     }
@@ -72,33 +66,32 @@ public class FileWorker {
         return result;
     }
 
-    public void delete(Path path) throws IOException {
-        Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(file -> {
-            if (!file.delete()) {
+    public boolean delete(Path path) throws IOException {
+
+        // Пишут, что плохо использовать лямбду и при этом изменять что-то извне.
+        // Рекомендуют использовать обычный цикл. А коли сильно хочется, то обертку типа Atomic.
+
+//        AtomicBoolean isDeleteFalse = new AtomicBoolean(false);
+//        Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(file -> {
+//            if (!file.delete()) {
+//                isDeleteFalse.set(true);
+//            }
+//        });
+
+        boolean isDeleteFalse = false;
+        List<File> files = Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).collect(Collectors.toList());
+
+        for (File f : files) {
+            if (!f.delete()) {
                 isDeleteFalse = true;
             }
-        });
+        }
+
+        return isDeleteFalse;
     }
 
     public boolean checkFolders(Path... paths) {
         return Arrays.stream(paths).allMatch(p -> Files.isDirectory(p));
-    }
-
-    public void flush() {
-        this.offset = 0;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public boolean isDeleteFalse() {
-        if (isDeleteFalse) {
-            isDeleteFalse = false;
-            return true;
-        }
-
-        return false;
     }
 
     public void createDirectory(Path path) throws IOException {

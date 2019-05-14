@@ -33,12 +33,12 @@ public class FileChunk implements Serializable {
 
     public boolean getNextChunk() throws IOException {
         if (length != -1) {
-            length = fileWorker.readFileChunk(Paths.get(filePath), data);
-            offset = fileWorker.getOffset();
+            length = fileWorker.readFileChunk(Paths.get(filePath), data, offset);
+            offset += length;
             return true;
         }
 
-        fileWorker.flush();
+        offset = 0;
         length = 0;
 
         return false;

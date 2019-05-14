@@ -28,7 +28,7 @@ import java.util.UUID;
 public class CommandRunner implements Invokable {
     private Command responseCommand;
     private static final AuthService authService = new SQLAuthService();
-    private static final FileChunk fileChunk = new FileChunk();
+    private final FileChunk fileChunk = new FileChunk();
     private static FileWorker fileWorker = new FileWorker();
 
     @Getter
@@ -131,9 +131,9 @@ public class CommandRunner implements Invokable {
 
     private void delete(String path, ChannelHandlerContext ctx) {
         try {
-            fileWorker.delete(Paths.get(clientFolder + File.separator + path));
+            boolean deleteFlag = fileWorker.delete(Paths.get(clientFolder + File.separator + path));
 
-            if (!fileWorker.isDeleteFalse()) {
+            if (!deleteFlag) {
                 return;
             }
 
