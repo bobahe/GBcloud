@@ -1,6 +1,5 @@
 package ru.bobahe.gbcloud.client.viewmodel;
 
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -42,10 +41,10 @@ public class GlobalViewModel {
     private BooleanProperty isConnected = new SimpleBooleanProperty(false);
 
     @Getter
-    private ObservableList<Filec> clientFilesList = FXCollections.observableArrayList();
+    private ObservableList<FileInfo> clientFilesList = FXCollections.observableArrayList();
 
     @Getter
-    private ObservableList<Filec> serverFilesList = FXCollections.observableArrayList();
+    private ObservableList<FileInfo> serverFilesList = FXCollections.observableArrayList();
 
     @Getter
     private StringProperty serverPath = new SimpleStringProperty(File.separator);
@@ -77,12 +76,12 @@ public class GlobalViewModel {
     public void getClientFileList() {
         try {
             if (!clientPath.get().equals(File.separator)) {
-                clientFilesList.add(Filec.builder().name("..").isFolder("папка").build());
+                clientFilesList.add(FileInfo.builder().name("..").isFolder("папка").build());
             }
             Map<String, Boolean> fileList = new FileWorker().getFileList(
                     ApplicationProperties.getInstance().getProperty("root.directory") +
                             clientPath.get());
-            fileList.forEach((n, f) -> clientFilesList.add(Filec.builder().name(n).isFolder(f ? "папка" : "").build()));
+            fileList.forEach((n, f) -> clientFilesList.add(FileInfo.builder().name(n).isFolder(f ? "папка" : "").build()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -96,8 +95,8 @@ public class GlobalViewModel {
         client.getChannel().writeAndFlush(responseCommand);
     }
 
-    public void changeDir(TableView<Filec> tw, StringProperty path, boolean isClientPath) {
-        Filec selectedItem = tw.getSelectionModel().getSelectedItem();
+    public void changeDir(TableView<FileInfo> tw, StringProperty path, boolean isClientPath) {
+        FileInfo selectedItem = tw.getSelectionModel().getSelectedItem();
 
         if (selectedItem == null) {
             return;
@@ -126,8 +125,8 @@ public class GlobalViewModel {
         }
     }
 
-    public void copyToServer(TableView<Filec> tw, StringProperty from, StringProperty to) {
-        Filec selectedItem = tw.getSelectionModel().getSelectedItem();
+    public void copyToServer(TableView<FileInfo> tw, StringProperty from, StringProperty to) {
+        FileInfo selectedItem = tw.getSelectionModel().getSelectedItem();
 
         if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
@@ -170,8 +169,8 @@ public class GlobalViewModel {
         }
     }
 
-    public void copyFromServer(TableView<Filec> serverFilesTable, StringProperty clientPath, StringProperty serverPath) {
-        Filec selectedItem = serverFilesTable.getSelectionModel().getSelectedItem();
+    public void copyFromServer(TableView<FileInfo> serverFilesTable, StringProperty clientPath, StringProperty serverPath) {
+        FileInfo selectedItem = serverFilesTable.getSelectionModel().getSelectedItem();
 
         if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
@@ -188,8 +187,8 @@ public class GlobalViewModel {
         client.getChannel().writeAndFlush(responseCommand);
     }
 
-    public void delete(boolean isClient, TableView<Filec> tw) throws Exception {
-        Filec selecteItem = tw.getSelectionModel().getSelectedItem();
+    public void delete(boolean isClient, TableView<FileInfo> tw) throws Exception {
+        FileInfo selecteItem = tw.getSelectionModel().getSelectedItem();
 
         if (selecteItem == null || selecteItem.getName().equals("..")) {
             return;

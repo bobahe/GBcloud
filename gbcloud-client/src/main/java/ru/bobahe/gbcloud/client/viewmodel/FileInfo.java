@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class Filec {
+public class FileInfo {
     private String name;
     private String isFolder;
 }

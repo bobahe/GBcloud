@@ -12,7 +12,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -23,7 +22,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import ru.bobahe.gbcloud.client.viewmodel.Filec;
+import ru.bobahe.gbcloud.client.guiutils.GuiUtils;
+import ru.bobahe.gbcloud.client.viewmodel.FileInfo;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
 import java.io.File;
@@ -33,8 +33,8 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     private GlobalViewModel model = GlobalViewModel.getInstance();
-    private ObservableList<Filec> clientFilesList = model.getClientFilesList();
-    private ObservableList<Filec> serverFilesList = model.getServerFilesList();
+    private ObservableList<FileInfo> clientFilesList = model.getClientFilesList();
+    private ObservableList<FileInfo> serverFilesList = model.getServerFilesList();
     private StringProperty serverPath = model.getServerPath();
     private StringProperty clientPath = model.getClientPath();
 
@@ -48,7 +48,7 @@ public class MainController implements Initializable {
     private GridPane clientGridPane;
 
     @FXML
-    private TableView<Filec> clientFilesTable, serverFilesTable;
+    private TableView<FileInfo> clientFilesTable, serverFilesTable;
 
     @FXML
     private Label lblClientPath, lblServerPath;
@@ -68,7 +68,7 @@ public class MainController implements Initializable {
         serverPath.setValue(File.separator);
         lblServerPath.textProperty().bind(serverPath);
 
-        prepareTableViews();
+        GuiUtils.prepareTableViews(clientFilesTable, serverFilesTable);
 
         model.getClientFileList();
 
@@ -112,38 +112,6 @@ public class MainController implements Initializable {
             alert.setHeaderText(headerText);
             alert.showAndWait();
         });
-    }
-
-    @SuppressWarnings("unchecked")
-    private void prepareTableViews() {
-        clientFilesTable.getColumns().addAll(
-                getNewColumn("Имя", "name"),
-                getNewColumn("Тип", "isFolder")
-        );
-        clientFilesTable.setItems(clientFilesList);
-
-        serverFilesTable.getColumns().addAll(
-                getNewColumn("Имя", "name"),
-                getNewColumn("Тип", "isFolder")
-        );
-        serverFilesTable.setItems(serverFilesList);
-
-        setTableViewsColumnWidth();
-    }
-
-    private void setTableViewsColumnWidth() {
-        Platform.runLater(() -> {
-            clientFilesTable.getColumns().get(0).setPrefWidth(clientFilesTable.getWidth() * 85 / 100);
-            clientFilesTable.getColumns().get(1).setPrefWidth(clientFilesTable.getWidth() * 14 / 100);
-            serverFilesTable.getColumns().get(0).setPrefWidth(clientFilesTable.getWidth() * 85 / 100);
-            serverFilesTable.getColumns().get(1).setPrefWidth(clientFilesTable.getWidth() * 14 / 100);
-        });
-    }
-
-    private TableColumn<Filec, String> getNewColumn(String name, String propertyName) {
-        TableColumn<Filec, String> newColumn = new TableColumn<>(name);
-        newColumn.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        return newColumn;
     }
 
     public void clientFilesTableClick(MouseEvent mouseEvent) {
@@ -203,7 +171,7 @@ public class MainController implements Initializable {
     private void showNewDirectoryModal(boolean isClient) {
         // todo Разобраться с редактированием TableView
 //        if (isClient) {
-//            Filec dir = Filec.builder().name(String.valueOf(clientFilesTable.getItems().size())).isFolder("папка").build();
+//            FileInfo dir = FileInfo.builder().name(String.valueOf(clientFilesTable.getItems().size())).isFolder("папка").build();
 //            clientFilesTable.getItems().add(dir);
 //            clientFilesTable.getSelectionModel().select(dir);
 //            //clientFilesTable.setEditable(true);
@@ -237,7 +205,7 @@ public class MainController implements Initializable {
 
     public void deleteMenuItemClicked(ActionEvent actionEvent) {
         try {
-            TableView<Filec> tw = serverFilesTable;
+            TableView<FileInfo> tw = serverFilesTable;
             if (isClientContextMenu(actionEvent)) {
                 tw = clientFilesTable;
             }

@@ -3,7 +3,7 @@ package ru.bobahe.gbcloud.client.net;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
-import ru.bobahe.gbcloud.client.viewmodel.Filec;
+import ru.bobahe.gbcloud.client.viewmodel.FileInfo;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 import ru.bobahe.gbcloud.common.FileChunk;
 import ru.bobahe.gbcloud.common.command.Action;
@@ -76,12 +76,12 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
 
                         if (!model.getServerPath().get().equals(File.separator)) {
                             model.getServerFilesList().add(
-                                    Filec.builder().name("..").isFolder("папка").build()
+                                    FileInfo.builder().name("..").isFolder("папка").build()
                             );
                         }
                         params.getFileList().forEach((n, f) ->
                                 model.getServerFilesList().add(
-                                        Filec.builder().name(n).isFolder(f ? "папка" : "").build()
+                                        FileInfo.builder().name(n).isFolder(f ? "папка" : "").build()
                                 )
                         );
                     }
