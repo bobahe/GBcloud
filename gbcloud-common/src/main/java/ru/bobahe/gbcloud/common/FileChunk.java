@@ -1,5 +1,7 @@
 package ru.bobahe.gbcloud.common;
 
+import lombok.Getter;
+import lombok.Setter;
 import ru.bobahe.gbcloud.common.fs.FileWorker;
 
 import java.io.IOException;
@@ -9,18 +11,25 @@ import java.nio.file.Paths;
 public class FileChunk implements Serializable {
     private static final long serialVersionUID = 483955420908884631L;
 
+    @Getter
     private byte[] data = new byte[8192];
+
+    @Getter
+    @Setter
     private String filePath;
+
+    @Getter
+    @Setter
     private String destinationFilePath;
+
+    @Getter
     private int length;
+
+    @Getter
     private long offset;
 
     // prevent fileWorker serialization
     transient private FileWorker fileWorker = new FileWorker();
-
-    public FileChunk() {
-
-    }
 
     public boolean getNextChunk() throws IOException {
         if (length != -1) {
@@ -33,33 +42,5 @@ public class FileChunk implements Serializable {
         length = 0;
 
         return false;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setDestinationFilePath(String destinationFilePath) {
-        this.destinationFilePath = destinationFilePath;
-    }
-
-    public String getDestinationFilePath() {
-        return destinationFilePath;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public int getLength() {
-        return length;
-    }
-
-    public byte[] getData() {
-        return data;
     }
 }
