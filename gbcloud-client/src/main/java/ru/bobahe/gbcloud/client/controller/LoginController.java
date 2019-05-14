@@ -49,11 +49,13 @@ public class LoginController implements Initializable {
     }
 
     private void connect() {
+        if (model.getIsConnected().get()) {
+            return;
+        }
+
         new Thread(() -> {
             try {
-                if (!model.getIsConnected().get()) {
-                    model.getClient().connect();
-                }
+                model.getClient().connect();
             } catch (Exception e) {
                 Platform.runLater(() -> passwordError.setText("Возникла ошибка при подключении"));
                 log.info(e.getMessage());
@@ -89,17 +91,10 @@ public class LoginController implements Initializable {
     private void showFileManager() {
         Platform.runLater(() -> {
             try {
-                if (this.root.getScene().getWindow() != null) {
-                    ((Stage) this.root.getScene().getWindow()).close();
-                }
-
-                Stage stage = new Stage();
+                Stage window = (Stage) this.root.getScene().getWindow();
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
-                Parent root = loader.load();
-
-                stage.setTitle("GBCloud client");
-                stage.setScene(new Scene(root, 1024, 768));
-                stage.show();
+                window.setResizable(true);
+                window.setScene(new Scene(loader.load(), 800, 600));
             } catch (IOException e) {
                 e.printStackTrace();
             }

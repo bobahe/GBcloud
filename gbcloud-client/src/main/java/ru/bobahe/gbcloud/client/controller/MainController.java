@@ -7,10 +7,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -19,23 +16,18 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import ru.bobahe.gbcloud.client.guiutils.GuiUtils;
 import ru.bobahe.gbcloud.client.viewmodel.FileInfo;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     private GlobalViewModel model = GlobalViewModel.getInstance();
-    private ObservableList<FileInfo> clientFilesList = model.getClientFilesList();
-    private ObservableList<FileInfo> serverFilesList = model.getServerFilesList();
     private StringProperty serverPath = model.getServerPath();
     private StringProperty clientPath = model.getClientPath();
 
