@@ -18,13 +18,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GlobalViewModel {
     // region Singleton
     private static GlobalViewModel ourInstance = new GlobalViewModel();
 
-    private GlobalViewModel() {}
+    private GlobalViewModel() {
+    }
 
     public static GlobalViewModel getInstance() {
         return ourInstance;
@@ -121,7 +124,7 @@ public class GlobalViewModel {
         }
     }
 
-    public void copyToServer(FileInfo selectedItem, StringProperty from, StringProperty to) {
+    public void copyToServer(FileInfo selectedItem, StringProperty from, StringProperty to) throws Exception {
         if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
         }
@@ -132,35 +135,32 @@ public class GlobalViewModel {
 
         String sourcePath = ApplicationProperties.getInstance().getProperty("root.directory") + from.get() + selectedItem.getName();
 
-        try {
-            Files.walk(Paths.get(sourcePath)).forEach(p -> {
-                if (Files.isDirectory(p)) {
-                    try {
-                        createDirectory(false, serverPath.get() + p.subpath(1, p.getNameCount()).toString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (!Files.isDirectory(p)) {
-                    String dstPath = to.get();
+        List<Path> paths = Files.walk(Paths.get(sourcePath)).collect(Collectors.toList());
 
-                    if (selectedItem.getIsFolder().equals("папка")) {
-                        dstPath = to.get() + p.toString().substring(
-                                p.toString().indexOf(selectedItem.getName()),
-                                p.toString().lastIndexOf(File.separator) + 1
-                        );
-                    }
-
-                    responseCommand = Command.builder()
-                            .action(Action.UPLOAD)
-                            .parameters(new FileParameters(File.separator + p.subpath(1, p.getNameCount()).toString(), dstPath))
-                            .build();
-                    client.getChannel().writeAndFlush(responseCommand);
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (Path p : paths) {
+            if (Files.isDirectory(p)) {
+                createDirectory(false, serverPath.get() + p.subpath(1, p.getNameCount()).toString());
+            } else {
+                copyFile(p, selectedItem, to);
+            }
         }
+    }
+
+    private void copyFile(Path p, FileInfo selectedItem, StringProperty to) {
+        String dstPath = to.get();
+
+        if (selectedItem.getIsFolder().equals("папка")) {
+            dstPath = to.get() + p.toString().substring(
+                    p.toString().indexOf(selectedItem.getName()),
+                    p.toString().lastIndexOf(File.separator) + 1
+            );
+        }
+
+        responseCommand = Command.builder()
+                .action(Action.UPLOAD)
+                .parameters(new FileParameters(File.separator + p.subpath(1, p.getNameCount()).toString(), dstPath))
+                .build();
+        client.getChannel().writeAndFlush(responseCommand);
     }
 
     public void copyFromServer(FileInfo selectedItem, StringProperty clientPath, StringProperty serverPath) {

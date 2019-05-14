@@ -123,7 +123,7 @@ public class MainController implements Initializable {
                 model.changeDir(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, true);
                 break;
             case F5:
-                model.copyToServer(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
+                performCopyingToServer();
                 break;
             case F7:
                 showNewDirectoryModal(true);
@@ -201,9 +201,17 @@ public class MainController implements Initializable {
 
     public void copyMenuItemClicked(ActionEvent actionEvent) {
         if (isClientContextMenu(actionEvent)) {
-            model.copyToServer(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
+            performCopyingToServer();
         } else {
             model.copyFromServer(serverFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
+        }
+    }
+
+    private void performCopyingToServer() {
+        try {
+            model.copyToServer(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
+        } catch (Exception e) {
+            GuiUtils.showAlert(Alert.AlertType.ERROR, "Ошибка", "При копировании возникла ошибка", e.getMessage());
         }
     }
 }
