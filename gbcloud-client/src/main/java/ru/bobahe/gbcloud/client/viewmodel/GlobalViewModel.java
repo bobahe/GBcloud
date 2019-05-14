@@ -3,7 +3,6 @@ package ru.bobahe.gbcloud.client.viewmodel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TableView;
 import lombok.Getter;
 import ru.bobahe.gbcloud.client.net.Client;
 import ru.bobahe.gbcloud.client.properties.ApplicationProperties;
@@ -94,9 +93,7 @@ public class GlobalViewModel {
         client.getChannel().writeAndFlush(responseCommand);
     }
 
-    public void changeDir(TableView<FileInfo> tw, StringProperty path, boolean isClientPath) {
-        FileInfo selectedItem = tw.getSelectionModel().getSelectedItem();
-
+    public void changeDir(FileInfo selectedItem, StringProperty path, boolean isClientPath) {
         if (selectedItem == null) {
             return;
         }
@@ -124,9 +121,7 @@ public class GlobalViewModel {
         }
     }
 
-    public void copyToServer(TableView<FileInfo> tw, StringProperty from, StringProperty to) {
-        FileInfo selectedItem = tw.getSelectionModel().getSelectedItem();
-
+    public void copyToServer(FileInfo selectedItem, StringProperty from, StringProperty to) {
         if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
         }
@@ -168,9 +163,7 @@ public class GlobalViewModel {
         }
     }
 
-    public void copyFromServer(TableView<FileInfo> serverFilesTable, StringProperty clientPath, StringProperty serverPath) {
-        FileInfo selectedItem = serverFilesTable.getSelectionModel().getSelectedItem();
-
+    public void copyFromServer(FileInfo selectedItem, StringProperty clientPath, StringProperty serverPath) {
         if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
         }
@@ -186,10 +179,8 @@ public class GlobalViewModel {
         client.getChannel().writeAndFlush(responseCommand);
     }
 
-    public void delete(boolean isClient, TableView<FileInfo> tw) throws Exception {
-        FileInfo selecteItem = tw.getSelectionModel().getSelectedItem();
-
-        if (selecteItem == null || selecteItem.getName().equals("..")) {
+    public void delete(boolean isClient, FileInfo selectedItem) throws Exception {
+        if (selectedItem == null || selectedItem.getName().equals("..")) {
             return;
         }
 
@@ -197,7 +188,7 @@ public class GlobalViewModel {
             Path pathToDelete = Paths.get(
                     ApplicationProperties.getInstance().getProperty("root.directory") +
                             clientPath.get() +
-                            selecteItem.getName()
+                            selectedItem.getName()
             );
             FSUtils.delete(pathToDelete);
             clientFilesList.clear();
@@ -209,7 +200,7 @@ public class GlobalViewModel {
 
             responseCommand = Command.builder()
                     .action(Action.DELETE)
-                    .parameters(new FileParameters(serverPath.get() + selecteItem.getName(), null))
+                    .parameters(new FileParameters(serverPath.get() + selectedItem.getName(), null))
                     .build();
             client.getChannel().writeAndFlush(responseCommand);
         }

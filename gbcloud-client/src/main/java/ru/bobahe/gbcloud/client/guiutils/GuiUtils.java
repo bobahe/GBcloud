@@ -63,4 +63,14 @@ public class GuiUtils {
         alert.showAndWait();
     }
     //endregion
+
+    //region Update GUI
+    public static void updateGUI(Runnable runnable) {
+        if (Platform.isFxApplicationThread()) {
+            runnable.run();
+        } else {
+            Platform.runLater(runnable);
+        }
+    }
+    //endregion
 }

@@ -113,24 +113,24 @@ public class MainController implements Initializable {
 
     public void clientFilesTableClick(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() > 1) {
-            model.changeDir(clientFilesTable, clientPath, true);
+            model.changeDir(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, true);
         }
     }
 
     public void clientFilesTableKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
             case ENTER:
-                model.changeDir(clientFilesTable, clientPath, true);
+                model.changeDir(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, true);
                 break;
             case F5:
-                model.copyToServer(clientFilesTable, clientPath, serverPath);
+                model.copyToServer(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
                 break;
             case F7:
                 showNewDirectoryModal(true);
                 break;
             case F8:
                 try {
-                    model.delete(true, clientFilesTable);
+                    model.delete(true, clientFilesTable.getSelectionModel().getSelectedItem());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -140,24 +140,24 @@ public class MainController implements Initializable {
 
     public void serverFilesTableClick(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() > 1) {
-            model.changeDir(serverFilesTable, serverPath, false);
+            model.changeDir(serverFilesTable.getSelectionModel().getSelectedItem(), serverPath, false);
         }
     }
 
     public void serverFilesTableKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
             case ENTER:
-                model.changeDir(serverFilesTable, serverPath, false);
+                model.changeDir(serverFilesTable.getSelectionModel().getSelectedItem(), serverPath, false);
                 break;
             case F5:
-                model.copyFromServer(serverFilesTable, clientPath, serverPath);
+                model.copyFromServer(serverFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
                 break;
             case F7:
                 showNewDirectoryModal(false);
                 break;
             case F8:
                 try {
-                    model.delete(false, serverFilesTable);
+                    model.delete(false, serverFilesTable.getSelectionModel().getSelectedItem());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -188,11 +188,12 @@ public class MainController implements Initializable {
 
     public void deleteMenuItemClicked(ActionEvent actionEvent) {
         try {
-            TableView<FileInfo> tw = serverFilesTable;
             if (isClientContextMenu(actionEvent)) {
-                tw = clientFilesTable;
+                model.delete(true, clientFilesTable.getSelectionModel().getSelectedItem());
+                return;
             }
-            model.delete(isClientContextMenu(actionEvent), tw);
+
+            model.delete(false, serverFilesTable.getSelectionModel().getSelectedItem());
         } catch (Exception e) {
             GuiUtils.showAlert(Alert.AlertType.ERROR, "Удаление", "Ошибка", e.getMessage());
         }
@@ -200,9 +201,9 @@ public class MainController implements Initializable {
 
     public void copyMenuItemClicked(ActionEvent actionEvent) {
         if (isClientContextMenu(actionEvent)) {
-            model.copyToServer(clientFilesTable, clientPath, serverPath);
+            model.copyToServer(clientFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
         } else {
-            model.copyFromServer(serverFilesTable, clientPath, serverPath);
+            model.copyFromServer(serverFilesTable.getSelectionModel().getSelectedItem(), clientPath, serverPath);
         }
     }
 }

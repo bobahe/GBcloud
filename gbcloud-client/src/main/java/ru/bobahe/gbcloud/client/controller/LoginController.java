@@ -16,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import lombok.extern.java.Log;
+import ru.bobahe.gbcloud.client.guiutils.GuiUtils;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
 import java.io.IOException;
@@ -89,16 +90,14 @@ public class LoginController implements Initializable {
     }
 
     private void showFileManager() {
-        Platform.runLater(() -> {
-            try {
-                Stage window = (Stage) this.root.getScene().getWindow();
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
-                window.setResizable(true);
-                window.setScene(new Scene(loader.load(), 800, 600));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        try {
+            Stage window = (Stage) this.root.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
+            window.setResizable(true);
+            window.setScene(new Scene(loader.load(), 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void passwordTextChanged(Observable observable) {
