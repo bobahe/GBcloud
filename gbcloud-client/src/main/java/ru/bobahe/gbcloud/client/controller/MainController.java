@@ -29,6 +29,7 @@ import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -60,6 +61,7 @@ public class MainController implements Initializable {
     private ContextMenu serverFilesMenu;
 
     @Override
+    @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
         onCloseRequest();
 
@@ -82,7 +84,8 @@ public class MainController implements Initializable {
         Platform.runLater(() -> {
             root.getScene().getWindow().setOnCloseRequest(event -> {
                 if (event.getEventType() == WindowEvent.WINDOW_CLOSE_REQUEST) {
-                    while(!GlobalViewModel.getInstance().getClient().close()) {}
+                    while (!GlobalViewModel.getInstance().getClient().close()) {
+                    }
                     Platform.exit();
                 }
             });
@@ -98,6 +101,10 @@ public class MainController implements Initializable {
     }
 
     private void messageFromServer(Observable observable) {
+        if (((StringProperty) observable).get().length() == 0) {
+            return;
+        }
+
         Platform.runLater(() -> {
             Alert.AlertType type = Alert.AlertType.ERROR;
             String headerText = "Ошибка";
@@ -107,10 +114,8 @@ public class MainController implements Initializable {
                 headerText = "Успех";
             }
 
-            Alert alert = new Alert(type, ((StringProperty) observable).get(), ButtonType.OK);
-            alert.setTitle("Собщение от сервера");
-            alert.setHeaderText(headerText);
-            alert.showAndWait();
+            GuiUtils.showAlert(type, "Собщение от сервера", headerText, ((StringProperty) observable).get());
+            ((StringProperty) observable).set("");
         });
     }
 
@@ -170,29 +175,15 @@ public class MainController implements Initializable {
 
     private void showNewDirectoryModal(boolean isClient) {
         // todo Разобраться с редактированием TableView
-//        if (isClient) {
-//            FileInfo dir = FileInfo.builder().name(String.valueOf(clientFilesTable.getItems().size())).isFolder("папка").build();
-//            clientFilesTable.getItems().add(dir);
-//            clientFilesTable.getSelectionModel().select(dir);
-//            //clientFilesTable.setEditable(true);
-//            clientFilesTable.layout();
-//            clientFilesTable.edit(clientFilesTable.getItems().size() - 1, clientFilesTable.getColumns().get(1));
-//        }
-        try {
-            Stage stage = new Stage();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/NewDirectory.fxml"));
-            Parent root = loader.load();
-            NewDirectoryController controller = loader.getController();
-            controller.setPath(isClient ? clientPath.get() : serverPath.get());
-            controller.setClient(isClient);
+        Optional<String> result = GuiUtils.showNewFolderDialog();
 
-            stage.setTitle("Новая папка");
-            stage.setScene(new Scene(root, 270, 100));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        result.ifPresent(name -> {
+            try {
+                model.createDirectory(isClient, (isClient ? clientPath.get() : serverPath.get()) + result.get());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private boolean isClientContextMenu(ActionEvent actionEvent) {
@@ -211,10 +202,7 @@ public class MainController implements Initializable {
             }
             model.delete(isClientContextMenu(actionEvent), tw);
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
-            alert.setTitle("Удаление");
-            alert.setHeaderText("Ошибка");
-            alert.showAndWait();
+            GuiUtils.showAlert(Alert.AlertType.ERROR, "Удаление", "Ошибка", e.getMessage());
         }
     }
 

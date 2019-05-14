@@ -1,13 +1,15 @@
 package ru.bobahe.gbcloud.client.guiutils;
 
 import javafx.application.Platform;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import ru.bobahe.gbcloud.client.viewmodel.FileInfo;
 import ru.bobahe.gbcloud.client.viewmodel.GlobalViewModel;
 
+import java.util.Optional;
+
 public class GuiUtils {
+    //region TableViews configuration
     @SuppressWarnings("unchecked")
     public static void prepareTableViews(TableView<FileInfo>... fileTableViews) {
         for (TableView<FileInfo> t : fileTableViews) {
@@ -40,4 +42,25 @@ public class GuiUtils {
         newColumn.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         return newColumn;
     }
+    //endregion
+
+    //region New folder dialog code
+    public static Optional<String> showNewFolderDialog() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Новая папка");
+        dialog.setHeaderText("Введите имя папки");
+        dialog.setContentText("Имя: ");
+
+        return dialog.showAndWait();
+    }
+    //endregion
+
+    //region Show alert
+    public static void showAlert(Alert.AlertType alertType, String title, String header, String content) {
+        Alert alert = new Alert(alertType, content, ButtonType.OK);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.showAndWait();
+    }
+    //endregion
 }
