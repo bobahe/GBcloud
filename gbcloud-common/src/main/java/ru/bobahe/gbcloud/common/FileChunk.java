@@ -26,9 +26,16 @@ public class FileChunk implements Serializable {
     private int length;
 
     @Getter
+    private long fileLength;
+
+    @Getter
     private long offset;
 
     public boolean getNextChunk() throws IOException {
+        if (fileLength == 0) {
+            fileLength = FSUtils.getFileSize(Paths.get(filePath));
+        }
+
         if (length != -1) {
             length = FSUtils.readFileChunk(Paths.get(filePath), data, offset);
             offset += length;
@@ -37,6 +44,7 @@ public class FileChunk implements Serializable {
 
         offset = 0;
         length = 0;
+        fileLength = 0;
 
         return false;
     }
