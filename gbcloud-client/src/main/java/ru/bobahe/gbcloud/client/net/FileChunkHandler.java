@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileChunkHandler extends ChannelInboundHandlerAdapter {
+    private final GlobalViewModel model = GlobalViewModel.getInstance();
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof FileChunk) {
@@ -31,9 +33,12 @@ public class FileChunkHandler extends ChannelInboundHandlerAdapter {
                         fileChunk.getOffset(),
                         fileChunk.getLength()
                 );
+
+                float percentage = ((float) fileChunk.getOffset()) / fileChunk.getFileLength();
+                model.getProgressProperty().setValue(percentage);
             } else {
-                GlobalViewModel.getInstance().getClientFilesList().clear();
-                GlobalViewModel.getInstance().getClientFileList();
+                model.getClientFilesList().clear();
+                model.getClientFileList();
             }
         }
     }

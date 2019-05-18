@@ -56,15 +56,18 @@ public class MainController implements Initializable {
     @FXML
     private ContextMenu serverFilesMenu;
 
+    @FXML
+    private ProgressBar progressBar;
+
     @Override
     @SuppressWarnings("unchecked")
     public void initialize(URL location, ResourceBundle resources) {
         onCloseRequest();
 
-        clientPath.setValue(File.separator);
         lblClientPath.textProperty().bind(clientPath);
-        serverPath.setValue(File.separator);
         lblServerPath.textProperty().bind(serverPath);
+
+        progressBar.progressProperty().bind(model.getProgressProperty());
 
         GuiUtils.prepareTableViews(clientFilesTable, serverFilesTable);
 

@@ -97,4 +97,8 @@ public class FSUtils {
     public static void createDirectory(Path path) throws IOException {
         Files.createDirectories(path);
     }
+
+    public static long getFileSize(Path path) throws IOException {
+        return Files.size(path);
+    }
 }

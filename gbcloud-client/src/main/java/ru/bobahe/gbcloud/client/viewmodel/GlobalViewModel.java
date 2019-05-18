@@ -62,6 +62,9 @@ public class GlobalViewModel {
     @Getter
     private BooleanProperty isAuthenticated = new SimpleBooleanProperty(false);
 
+    @Getter
+    private FloatProperty progressProperty = new SimpleFloatProperty();
+
     public void authenticate(String username, String password) {
         if (client.getChannel() == null) {
             return;

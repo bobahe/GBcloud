@@ -109,6 +109,14 @@
                 </TableView>
             </GridPane>
         </AnchorPane>
+        <HBox>
+            <VBox.margin>
+                <Insets top="4"/>
+            </VBox.margin>
+
+            <Label text="Downloading file: "/>
+            <ProgressBar fx:id="progressBar" prefWidth="600" />
+        </HBox>
     </VBox>
 
 </StackPane>
